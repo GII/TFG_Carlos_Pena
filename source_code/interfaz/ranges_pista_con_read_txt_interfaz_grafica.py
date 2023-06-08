@@ -129,24 +129,19 @@ class Index:
             MessageBox.showinfo("Info", "Select a file previously")
 
     def player(self, id, event):
-        if id == 1:
-            positions = self.positions1
-            positions_mp = self.positions1_mp
-        elif id == 2:
-            positions = self.positions2
-            positions_mp = self.positions2_mp
-        elif id == 3:
-            positions = self.positions3
-            positions_mp = self.positions3_mp
-        elif id == 4:
-            positions = self.positions4
-            positions_mp = self.positions4_mp
-        elif id == 5:
-            positions = self.positions5
-            positions_mp = self.positions5_mp
         if self.button == "OPEN":
             MessageBox.showinfo("Info", "Select a visualization option:\n- Tracking\n- Heat Map")
         elif self.button == "TRACKING":
+            if id == 1:
+                positions = self.positions1
+            elif id == 2:
+                positions = self.positions2
+            elif id == 3:
+                positions = self.positions3
+            elif id == 4:
+                positions = self.positions4
+            elif id == 5:
+                positions = self.positions5
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
             draw_court(ax, grid_step=1)
             draw_anclas(ax)
@@ -162,6 +157,16 @@ class Index:
             )
             plt.draw()
         elif self.button == "HEAT MAP":
+            if id == 1:
+                positions_mp = self.positions1_mp
+            elif id == 2:
+                positions_mp = self.positions2_mp
+            elif id == 3:
+                positions_mp = self.positions3_mp
+            elif id == 4:
+                positions_mp = self.positions4_mp
+            elif id == 5:
+                positions_mp = self.positions5_mp
             data = mapacalor(positions_mp)
             ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
             ax.imshow(
