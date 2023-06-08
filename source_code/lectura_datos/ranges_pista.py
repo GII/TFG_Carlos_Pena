@@ -1,16 +1,13 @@
+import sys, os
+
+sys.path.append(os.getcwd())
+
 import serial, time
 from serial import SerialException
 import numpy as np
-import matplotlib.pyplot as plt
-import math
 import paho.mqtt.client as mqtt
-from tkinter import ttk
 
-from common.tracking_utils_entero_Canasta import (
-    draw_court,
-    draw_anclas,
-    draw_players,
-)
+from common.tracking_utils_entero_Canasta import draw_court, draw_anclas, draw_players
 
 
 class Ranges:
@@ -20,9 +17,7 @@ class Ranges:
         dwRate = 115200
         self.ser = serial.Serial(port=dwPort, timeout=10, baudrate=dwRate)
         # ranges :         rt1,    rt2,    rt3,    rt4,    ra12,   ra13,   ra23,   ra24,   ra34
-        self.Z = np.mat(
-            [[15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0]]
-        )
+        self.Z = np.mat([[15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0], [15.0]])
         # MQTT
         self.client_pub = mqtt.Client("Publicador")
         # conectarse al broker MQTT en la dirección IP del GII
@@ -66,9 +61,7 @@ class Ranges:
                     x_int = float(x)  # con el data.split() tenemos strings
                     y_int = float(y)
                     z_int = float(z)
-                    print(
-                        f"Tag {tagid}: {x_int}, {y_int+0.25}, {z_int}. Tiempo={tiempo}s"
-                    )
+                    print(f"Tag {tagid}: {x_int}, {y_int+0.25}, {z_int}. Tiempo={tiempo}s")
                     """if tagid == "9092":
                         if not math.isnan(x_int) and not math.isnan(
                             y_int

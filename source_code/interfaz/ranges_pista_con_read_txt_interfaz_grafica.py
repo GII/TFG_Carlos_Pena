@@ -1,12 +1,14 @@
-import serial, time
-from serial import SerialException
+import sys, os
+
+sys.path.append(os.getcwd())
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
-import math
 import paho.mqtt.client as mqtt
 from tkinter import messagebox as MessageBox
-import lectura_datos.ranges_pista
+from lectura_datos import ranges_pista
+
 
 # https://docs.hektorprofe.net/python/interfaces-graficas-con-tkinter/dialogs-dialogos/
 
@@ -335,15 +337,11 @@ class Interface:
         bmaximize.on_clicked(callback.maximize)
 
         axcontinuecapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
-        bcontinuecapdata = Button(
-            axcontinuecapdata, "STOP", color="red", hovercolor="firebrick"
-        )
+        bcontinuecapdata = Button(axcontinuecapdata, "STOP", color="red", hovercolor="firebrick")
         bcontinuecapdata.on_clicked(callback.continuecapdata)
 
         axstopcapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
-        bstopcapdata = Button(
-            axstopcapdata, "STOP", color="red", hovercolor="firebrick"
-        )
+        bstopcapdata = Button(axstopcapdata, "STOP", color="red", hovercolor="firebrick")
         bstopcapdata.on_clicked(callback.stopcapdata)
 
         axcapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])

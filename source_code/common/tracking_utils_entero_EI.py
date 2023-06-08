@@ -97,11 +97,7 @@ class BasketballCourt:
         backboard_l = Rectangle(
             (
                 cls.anclas_to_baseline + cls.baseline_to_backboard,
-                -(
-                    cls.anclas_to_sideline
-                    + cls.court_width / 2
-                    + cls.backboard_width / 2
-                ),
+                -(cls.anclas_to_sideline + cls.court_width / 2 + cls.backboard_width / 2),
             ),
             0,
             cls.backboard_width,
@@ -111,11 +107,7 @@ class BasketballCourt:
         backboard_r = Rectangle(
             (
                 cls.anclas_to_baseline + cls.court_length - cls.baseline_to_backboard,
-                -(
-                    cls.anclas_to_sideline
-                    + cls.court_width / 2
-                    + cls.backboard_width / 2
-                ),
+                -(cls.anclas_to_sideline + cls.court_width / 2 + cls.backboard_width / 2),
             ),
             0,
             cls.backboard_width,
@@ -464,9 +456,7 @@ class BasketballCourt:
         ### Grid
         if grid_step and type(grid_step) in [int, float]:
             ax.hlines(
-                y=-np.arange(
-                    0, int(2 * cls.anclas_to_sideline + cls.court_width), grid_step
-                ),
+                y=-np.arange(0, int(2 * cls.anclas_to_sideline + cls.court_width), grid_step),
                 xmin=-cls.court_length + 2 * cls.anclas_to_sideline,
                 xmax=cls.court_length + 2 * cls.anclas_to_sideline,
                 colors="gray",
@@ -474,9 +464,7 @@ class BasketballCourt:
                 alpha=0.5,
             )
             ax.vlines(
-                x=np.arange(
-                    0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step
-                ),
+                x=np.arange(0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step),
                 ymin=-cls.court_width - 2 * cls.anclas_to_baseline,
                 ymax=cls.court_width + 2 * cls.anclas_to_baseline,
                 colors="gray",
@@ -617,8 +605,7 @@ def draw_anclas(
         ]
     except AttributeError:
         elements = [
-            Circle(ancla, ancla_size, linewidth=lw, color=color)
-            for ancla in anclas.values()
+            Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas.values()
         ]
 
     ### Add the elements onto the axes
