@@ -5,6 +5,7 @@ sys.path.append(os.getcwd())
 import serial, time
 from serial import SerialException
 import numpy as np
+import math
 import paho.mqtt.client as mqtt
 
 from common.tracking_utils_entero_Canasta import draw_court, draw_anclas, draw_players
@@ -21,8 +22,9 @@ class Ranges:
         # MQTT
         self.client_pub = mqtt.Client("Publicador")
         # conectarse al broker MQTT en la dirección IP del GII
-        self.client_pub.connect("10.8.20.145")
-        self.topic = "Prueba"
+        self.client_pub.connect("127.0.0.1")
+        self.client_pub.loop_start()
+        self.topic = "PosicionJugadores"
 
     def run(self):
         # connect to tag via serial port
@@ -30,7 +32,7 @@ class Ranges:
             self.ser.close()
             self.ser.open()
             time.sleep(1)
-            # configure mdek as a tag
+            # configure mdek as a tagn
             self.ser.write(b"nmt\r")
             time.sleep(1)
             self.ser.write(b"\r")
@@ -48,9 +50,7 @@ class Ranges:
             print("serial connection established")
             tiempo0 = time.time()
 
-            # read, publish and represent data
-            archivo = ttk.Entry()
-
+            # read and publish data
             while True:
                 raw_data = self.ser.readline()
                 data = raw_data.decode(encoding="ascii", errors="ignore")
@@ -132,25 +132,21 @@ class Ranges:
                                     numero=5,
                                     realtime="Si",
                                 )"""
+                    # filtrado NaN
+                    # if not math.isnan(x_int) and not math.isnan(y_int):
                     # actualización de la figura
-                    with open(archivo, "a") as file:
+                    with open("PRUEBA.txt", "a") as file:
                         file.write(f"{tagid},{x},{y},{tiempo}\n")
                     # MQTT (publicación)
                     message = f"{tagid},{x},{y},{tiempo}\n"
                     self.client_pub.publish(self.topic, message)
+
             self.ser.close()
         except SerialException:
             print("Could not connect to the serial port")
-        # return positions_P1, positions_P2, positions_P3, positions_P4, positions_P5
-
-        # def cliente_suscriptor(self):
-        client_sus = mqtt.Client("Suscriptor")
-        # conectarse al broker MQTT en la dirección IP del GII
-        client_sus.connect("10.8.20.145")
-        client_sus.subscribe("Prueba")
-        return client_sus
 
 
 if __name__ == "__main__":
+    # Activar Servicio Mosquitto
     demo = Ranges()
     demo.run()

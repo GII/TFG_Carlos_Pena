@@ -34,19 +34,14 @@ AVANZAR EN:
 """
 
 
-# INTERFAZ GRÁFICA
-
-
 class Index:
     def __init__(self):
         self.button = None
-        '''self.client_sus = mqtt.Client("Suscriptor")
-        # conectarse al broker MQTT en la dirección IP del GII
-        self.client_sus.connect("10.8.20.145")
-        self.topic = "Prueba"'''
+        self.button_cap = None
 
     def close(self, event):
-        self.button = "CLOSE"
+        if self.button_cap:
+            self.client_sus.disconnect()
         plt.close("all")
 
     def maximize(self, event):
@@ -54,13 +49,60 @@ class Index:
         plt.get_current_fig_manager().full_screen_toggle()
 
     def capdata(self, event):
-        self.button = "CAPTURE DATA"
-        # self.client_sus.subscribe(self.topic)
+        self.button_cap = True
+        self.positions1_rt = []
+        self.positions2_rt = []
+        self.positions3_rt = []
+        self.positions4_rt = []
+        self.positions5_rt = []
+
+        def on_message(client_sus, userdata, message):
+            # print("message received ", str(message.payload.decode("utf-8")))
+            message_received = str(message.payload.decode("utf-8"))
+            tagid, x, y, tiempo = message_received.split(",")
+            x_int = float(x)
+            y_int = float(y)
+            if tagid == "9092":
+                self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
+            elif tagid == "C684":
+                self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
+                print(tiempo)
+            elif tagid == "XXXX":
+                self.positions3_rt.append([y_int + 0.25, x_int, tiempo])
+            elif tagid == "XXXX":
+                self.positions4_rt.append([y_int + 0.25, x_int, tiempo])
+            elif tagid == "XXXX":
+                self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
+
+        client_sus = mqtt.Client("Suscriptor")
+        client_sus.on_message = on_message
+        client_sus.connect("127.0.0.1")
+        topic = "PosicionJugadores"
+        client_sus.subscribe(topic)
+
         # TRATAMIENTO DE ESOS DATOS
+        self.positions1_rt_dic = {i: v for i, v in enumerate(self.positions1_rt)}
+        self.positions2_rt_dic = {i: v for i, v in enumerate(self.positions2_rt)}
+        self.positions3_rt_dic = {i: v for i, v in enumerate(self.positions3_rt)}
+        self.positions4_rt_dic = {i: v for i, v in enumerate(self.positions4_rt)}
+        self.positions5_rt_dic = {i: v for i, v in enumerate(self.positions5_rt)}
         ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+        draw_court(ax, grid_step=1)
+        draw_anclas(ax)
+        draw_players(
+            ax=ax,
+            positions=self.positions2_rt_dic,
+            realtime=None,
+            size=0.1,
+            fontsize=2,
+            color="green",
+            lw=1,
+            numero=1,
+        )
+        client_sus.loop_forever()
 
         # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
-        ax.set_visible(bstopcapdata)
+        # ax.set_visible(bstopcapdata)
 
     def stopcapdata(self, event):
         self.button = "STOP DATA"
