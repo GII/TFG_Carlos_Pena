@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
 import paho.mqtt.client as mqtt
 from tkinter import messagebox as MessageBox
+from functools import partial
 from lectura_datos import ranges_pista
 
 
@@ -34,6 +35,151 @@ AVANZAR EN:
 
 
 # INTERFAZ GRÁFICA
+
+
+class Index:
+    def __init__(self):
+        self.button = None
+        '''self.client_sus = mqtt.Client("Suscriptor")
+        # conectarse al broker MQTT en la dirección IP del GII
+        self.client_sus.connect("10.8.20.145")
+        self.topic = "Prueba"'''
+
+    def close(self, event):
+        self.button = "CLOSE"
+        plt.close("all")
+
+    def maximize(self, event):
+        self.button = "MAXIMIZE"
+        plt.get_current_fig_manager().full_screen_toggle()
+
+    def capdata(self, event):
+        self.button = "CAPTURE DATA"
+        # self.client_sus.subscribe(self.topic)
+        # TRATAMIENTO DE ESOS DATOS
+        ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+
+        # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
+        ax.set_visible(bstopcapdata)
+
+    def stopcapdata(self, event):
+        self.button = "STOP DATA"
+
+    def continuecapdata(self, event):
+        self.button = "CONTINUE DATA"
+
+    def open(self, event):
+        self.button = "OPEN"
+        (
+            self.archivotxt,
+            self.positions1,
+            self.positions2,
+            self.positions3,
+            self.positions4,
+            self.positions5,
+        ) = lectura()
+
+    def tracking(self, event):
+        if self.button == "OPEN" or self.button == "HEAT MAP":
+            self.button = "TRACKING"
+            ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+            draw_court(ax, grid_step=1)
+            draw_anclas(ax)
+            # Por defecto grafica las posiciones del jugador 1
+            draw_players(
+                ax=ax,
+                positions=self.positions1,
+                realtime=None,
+                size=0.1,
+                fontsize=2,
+                color="green",
+                lw=1,
+                numero=1,
+            )
+        else:
+            MessageBox.showinfo("Info", "Select a file previously")
+
+    def heatmap(self, event):
+        if self.button == "OPEN" or self.button == "TRACKING":
+            self.button = "HEAT MAP"
+            (
+                self.positions1_mp,
+                self.positions2_mp,
+                self.positions3_mp,
+                self.positions4_mp,
+                self.positions5_mp,
+            ) = lectura_mp(self.archivotxt)
+            # Por defecto muestra el mapa de calor del jugador 1
+            data = mapacalor(self.positions1_mp)
+            ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
+            ax.imshow(
+                data,
+                cmap="nipy_spectral",
+                norm="asinh",
+                aspect="auto",
+                alpha=1,
+                interpolation="nearest",
+                origin="lower",
+                extent=(0, 32, 0, 19),
+            )
+            draw_court_white(ax, grid_step=None)
+            plt.show()
+
+        else:
+            MessageBox.showinfo("Info", "Select a file previously")
+
+    def player(self, id, event):
+        if id == 1:
+            positions = self.positions1
+            positions_mp = self.positions1_mp
+        elif id == 2:
+            positions = self.positions2
+            positions_mp = self.positions2_mp
+        elif id == 3:
+            positions = self.positions3
+            positions_mp = self.positions3_mp
+        elif id == 4:
+            positions = self.positions4
+            positions_mp = self.positions4_mp
+        elif id == 5:
+            positions = self.positions5
+            positions_mp = self.positions5_mp
+        if self.button == "OPEN":
+            MessageBox.showinfo("Info", "Select a visualization option:\n- Tracking\n- Heat Map")
+        elif self.button == "TRACKING":
+            ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+            draw_court(ax, grid_step=1)
+            draw_anclas(ax)
+            draw_players(
+                ax=ax,
+                positions=positions,
+                realtime=None,
+                size=0.1,
+                fontsize=2,
+                color="green",
+                lw=1,
+                numero=1,
+            )
+            plt.draw()
+        elif self.button == "HEAT MAP":
+            data = mapacalor(positions_mp)
+            ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
+            ax.imshow(
+                data,
+                cmap="nipy_spectral",
+                norm="asinh",
+                aspect="auto",
+                alpha=1,
+                interpolation="nearest",
+                origin="lower",
+                extent=(0, 32, 0, 19),
+            )
+            draw_court_white(ax, grid_step=None)
+            plt.show()
+        else:
+            MessageBox.showinfo("Info", "Select a file previously")
+
+
 class Interface:
     def __init__(self):
         self.fig, self.ax = plt.subplots()
@@ -42,290 +188,8 @@ class Interface:
         draw_court(self.ax, grid_step=1)
         draw_anclas(self.ax)
         plt.get_current_fig_manager().full_screen_toggle()
-        self.button = "NADA"
 
     def run(self):
-        class Index:
-            def __init__(self):
-                self.button = None
-                '''self.client_sus = mqtt.Client("Suscriptor")
-                # conectarse al broker MQTT en la dirección IP del GII
-                self.client_sus.connect("10.8.20.145")
-                self.topic = "Prueba"'''
-
-            def close(self, event):
-                self.button = "CLOSE"
-                plt.close("all")
-
-            def maximize(self, event):
-                self.button = "MAXIMIZE"
-                plt.get_current_fig_manager().full_screen_toggle()
-
-            def capdata(self, event):
-                self.button = "CAPTURE DATA"
-                # self.client_sus.subscribe(self.topic)
-                # TRATAMIENTO DE ESOS DATOS
-                ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-
-                # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
-                ax.set_visible(bstopcapdata)
-
-            def stopcapdata(self, event):
-                self.button = "STOP DATA"
-
-            def continuecapdata(self, event):
-                self.button = "CONTINUE DATA"
-
-            def open(self, event):
-                self.button = "OPEN"
-                (
-                    self.archivotxt,
-                    self.positions1,
-                    self.positions2,
-                    self.positions3,
-                    self.positions4,
-                    self.positions5,
-                ) = lectura()
-
-            def tracking(self, event):
-                if self.button == "OPEN" or self.button == "HEAT MAP":
-                    self.button = "TRACKING"
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    # Por defecto grafica las posiciones del jugador 1
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions1,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def heatmap(self, event):
-                if self.button == "OPEN" or self.button == "TRACKING":
-                    self.button = "HEAT MAP"
-                    (
-                        self.positions1_mp,
-                        self.positions2_mp,
-                        self.positions3_mp,
-                        self.positions4_mp,
-                        self.positions5_mp,
-                    ) = lectura_mp(self.archivotxt)
-                    # Por defecto muestra el mapa de calor del jugador 1
-                    data = mapacalor(self.positions1_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def player1(self, event):
-                if self.button == "OPEN":
-                    MessageBox.showinfo(
-                        "Info", "Select a visualization option:\n- Tracking\n- Heat Map"
-                    )
-                elif self.button == "TRACKING":
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions1,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                    plt.draw()
-                elif self.button == "HEAT MAP":
-                    data = mapacalor(self.positions1_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def player2(self, event):
-                if self.button == "OPEN":
-                    MessageBox.showinfo(
-                        "Info", "Select a visualization option:\n- Tracking\n- Heat Map"
-                    )
-                elif self.button == "TRACKING":
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions2,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                    plt.draw()
-                elif self.button == "HEAT MAP":
-                    data = mapacalor(self.positions2_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def player3(self, event):
-                if self.button == "OPEN":
-                    MessageBox.showinfo(
-                        "Info", "Select a visualization option:\n- Tracking\n- Heat Map"
-                    )
-                elif self.button == "TRACKING":
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions3,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                    plt.draw()
-                elif self.button == "HEAT MAP":
-                    data = mapacalor(self.positions3_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def player4(self, event):
-                if self.button == "OPEN":
-                    MessageBox.showinfo(
-                        "Info", "Select a visualization option:\n- Tracking\n- Heat Map"
-                    )
-                elif self.button == "TRACKING":
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions4,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                    plt.draw()
-                elif self.button == "HEAT MAP":
-                    data = mapacalor(self.positions4_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
-            def player5(self, event):
-                if self.button == "OPEN":
-                    MessageBox.showinfo(
-                        "Info", "Select a visualization option:\n- Tracking\n- Heat Map"
-                    )
-                elif self.button == "TRACKING":
-                    ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-                    draw_court(ax, grid_step=1)
-                    draw_anclas(ax)
-                    draw_players(
-                        ax=ax,
-                        positions=self.positions5,
-                        realtime=None,
-                        size=0.1,
-                        fontsize=2,
-                        color="green",
-                        lw=1,
-                        numero=1,
-                    )
-                    plt.draw()
-                elif self.button == "HEAT MAP":
-                    data = mapacalor(self.positions5_mp)
-                    ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
-                    ax.imshow(
-                        data,
-                        cmap="nipy_spectral",
-                        norm="asinh",
-                        aspect="auto",
-                        alpha=1,
-                        interpolation="nearest",
-                        origin="lower",
-                        extent=(0, 32, 0, 19),
-                    )
-                    draw_court_white(ax, grid_step=None)
-                    plt.show()
-                else:
-                    MessageBox.showinfo("Info", "Select a file previously")
-
         callback = Index()
         # BUTTONS
         axclose = self.fig.add_axes([0.96, 0.96, 0.03, 0.03])
@@ -362,23 +226,23 @@ class Interface:
 
         axplayer1 = self.fig.add_axes([0.9, 0.33, 0.1, 0.08])
         bplayer1 = Button(axplayer1, "PLAYER 1", color="white", hovercolor="green")
-        bplayer1.on_clicked(callback.player1)
+        bplayer1.on_clicked(partial(callback.player, 1))
 
         axplayer2 = self.fig.add_axes([0.9, 0.25, 0.1, 0.08])
         bplayer2 = Button(axplayer2, "PLAYER 2", color="white", hovercolor="green")
-        bplayer2.on_clicked(callback.player2)
+        bplayer2.on_clicked(partial(callback.player, 2))
 
         axplayer3 = self.fig.add_axes([0.9, 0.17, 0.1, 0.08])
         bplayer3 = Button(axplayer3, "PLAYER 3", color="white", hovercolor="green")
-        bplayer3.on_clicked(callback.player3)
+        bplayer3.on_clicked(partial(callback.player, 3))
 
         axplayer4 = self.fig.add_axes([0.9, 0.09, 0.1, 0.08])
         bplayer4 = Button(axplayer4, "PLAYER 4", color="white", hovercolor="green")
-        bplayer4.on_clicked(callback.player4)
+        bplayer4.on_clicked(partial(callback.player, 4))
 
         axplayer5 = self.fig.add_axes([0.9, 0.01, 0.1, 0.08])
         bplayer5 = Button(axplayer5, "PLAYER 5", color="white", hovercolor="green")
-        bplayer5.on_clicked(callback.player5)
+        bplayer5.on_clicked(partial(callback.player, 5))
 
         # SLIDER https://matplotlib.org/2.0.2/examples/widgets/slider_demo.html  https://matplotlib.org/stable/gallery/widgets/slider_demo.html
         axtime = self.fig.add_axes([0.12, 0.9, 0.5, 0.03])
