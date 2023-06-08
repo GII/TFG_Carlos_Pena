@@ -1,3 +1,7 @@
+import sys, os
+
+sys.path.append(os.getcwd())
+
 import numpy as np
 import matplotlib
 import matplotlib as mpl
