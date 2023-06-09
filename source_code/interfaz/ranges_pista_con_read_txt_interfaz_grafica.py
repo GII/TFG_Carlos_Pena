@@ -25,10 +25,9 @@ from lectura_txt import lectura
 
 """
 AVANZAR EN:
-- Botones de Capture data y Stop --> demo.run() --> while stopcapdata != "STOP DATA" usar esa variable
-- Guardar los botones presionados previamente en variables
+- REAL TIME, se están publicando y estamos leyendo esos datos pero peta el programa
+
 - Barra en función del tiempo --> update cuando no es una variable de la gráfica
-- Mapa de calor delimitando zonas
 
 -Posible mejora de rapidez en la interfaz
 """
@@ -62,23 +61,31 @@ class Index:
             tagid, x, y, tiempo = message_received.split(",")
             x_int = float(x)
             y_int = float(y)
-            if tagid == "9092":
+            if tagid == "C684":
                 self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
-            elif tagid == "C684":
-                self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
+                id = 1
                 print(tiempo)
-            elif tagid == "XXXX":
+            elif tagid == "9092":
+                self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
+                id = 2
+
+            elif tagid == "92AB":
                 self.positions3_rt.append([y_int + 0.25, x_int, tiempo])
-            elif tagid == "XXXX":
+                id = 3
+            elif tagid == "C70B":
                 self.positions4_rt.append([y_int + 0.25, x_int, tiempo])
-            elif tagid == "XXXX":
+                id = 4
+            elif tagid == "C9B0":
                 self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
+                id = 5
+            return id
 
         client_sus = mqtt.Client("Suscriptor")
         client_sus.on_message = on_message
         client_sus.connect("127.0.0.1")
         topic = "PosicionJugadores"
         client_sus.subscribe(topic)
+        client_sus.loop_forever()
 
         # TRATAMIENTO DE ESOS DATOS
         self.positions1_rt_dic = {i: v for i, v in enumerate(self.positions1_rt)}
@@ -97,9 +104,8 @@ class Index:
             fontsize=2,
             color="green",
             lw=1,
-            numero=1,
+            numero=id,
         )
-        client_sus.loop_forever()
 
         # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
         # ax.set_visible(bstopcapdata)
@@ -195,7 +201,7 @@ class Index:
                 fontsize=2,
                 color="green",
                 lw=1,
-                numero=1,
+                numero=id,
             )
             plt.draw()
         elif self.button == "HEAT MAP":

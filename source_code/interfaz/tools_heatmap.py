@@ -23,29 +23,29 @@ def lectura_mp(archivotxt):
     positions_5 = []
     with open(archivotxt) as file:
         for lineas in file:
-            tagid, x, y = lineas.split(",")
+            tagid, x, y, tiempo = lineas.split(",")
             x_int = float(x)  # con el data.split() tenemos strings
             y_int = float(y)
-            if tagid == "9092":
+            if tagid == "C684":
                 if not math.isnan(x_int) and not math.isnan(
                     y_int
                 ):  # comprueba si los valores son distintos de nan antes de añadirlos a la lista
                     positions_1.append(
                         [
                             y_int + 0.25,
-                            x_int + 9.5,
+                            x_int + 10,
                         ]  # Ajustes a los ejes para TomaDatos_0505 y + 4.3 , -x + 0.8
                     )
-            elif tagid == "C684":
+            elif tagid == "9092":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_2.append([y_int + 0.25, x_int + 10])
-            elif tagid == "XXXX":
+            elif tagid == "92AB":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_3.append([y_int + 0.25, x_int + 10])
-            elif tagid == "XXXX":
+            elif tagid == "C70B":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_4.append([y_int + 0.25, x_int + 10])
-            elif tagid == "XXXX":
+            elif tagid == "C9B0":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_5.append([y_int + 0.25, x_int + 10])
 
@@ -107,18 +107,3 @@ if __name__ == "__main__":
         extent=(0, 32, 0, 19),
     )
     plt.show()
-
-"""# Show all ticks and label them with the respective list entries
-ax.set_xticks(np.arange(len(farmers)), labels=farmers)
-ax.set_yticks(np.arange(len(vegetables)), labels=vegetables)"""
-
-"""# Rotate the tick labels and set their alignment.
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")"""
-
-"""# Loop over data dimensions and create text annotations.
-for i in range(len(vegetables)):
-    for j in range(len(farmers)):
-        text = ax.text(j, i, harvest[i, j], ha="center", va="center", color="w")"""
-
-"""ax.set_title("Harvest of local farmers (in tons/year)")
-fig.tight_layout()"""

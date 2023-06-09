@@ -25,10 +25,10 @@ def lectura():
     positions_5 = []
     with open(archivotxt) as file:
         for lineas in file:
-            tagid, x, y = lineas.split(",")
+            tagid, x, y, tiempo = lineas.split(",")
             x_int = float(x)  # con el data.split() tenemos strings
             y_int = float(y)
-            if tagid == "9092":
+            if tagid == "C684":
                 if not math.isnan(x_int) and not math.isnan(
                     y_int
                 ):  # comprueba si los valores son distintos de nan antes de añadirlos a la lista
@@ -38,16 +38,16 @@ def lectura():
                             x_int,
                         ]  # Ajustes a los ejes para TomaDatos_0505 y + 4.3 , -x + 0.8
                     )
-            elif tagid == "C684":
+            elif tagid == "9092":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_2.append([y_int + 0.25, x_int])
-            elif tagid == "XXXX":
+            elif tagid == "92AB":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_3.append([y_int + 0.25, x_int])
-            elif tagid == "XXXX":
+            elif tagid == "C70B":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_4.append([y_int + 0.25, x_int])
-            elif tagid == "XXXX":
+            elif tagid == "C9B0":
                 if not math.isnan(x_int) and not math.isnan(y_int):
                     positions_5.append([y_int + 0.25, x_int])
 
