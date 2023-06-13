@@ -1397,7 +1397,7 @@ def draw_players_realtime(
     ax=None,
     posicion_x=None,
     posicion_y=None,
-    numero=None,
+    numero=id,
     realtime=None,
     size=0.3,
     fontsize=7,
@@ -1409,26 +1409,155 @@ def draw_players_realtime(
     if ax is None:
         ax = plt.gca()
 
-    if realtime == "Si":
-        jugador.clear()
+    if numero == 1:
+        if realtime == "Si":
+            if jugador1_ant == None:
+                jugador1_ant = Circle(
+                    [-1, 0],
+                    size,
+                    linewidth=lw,
+                    edgecolor=edgecolor,
+                    facecolor=facecolor,
+                )
+            jugador1_ant.remove()
+        jugador1 = Circle(
+            [posicion_x, posicion_y],
+            size,
+            linewidth=lw,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(jugador1)
+        ax.annotate(
+            f"{numero}",
+            jugador1.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
+        jugador1_ant = jugador1
 
-    jugador = Circle(
-        [posicion_x, posicion_y],
-        size,
-        linewidth=lw,
-        edgecolor=edgecolor,
-        facecolor=facecolor,
-    )
-    ax.add_patch(jugador)
-    ax.annotate(
-        f"{numero}",
-        jugador.get_center(),
-        color="white",
-        weight="bold",
-        fontsize=fontsize,
-        ha="center",
-        va="center",
-    )
+    elif numero == 2:
+        if realtime == "Si":
+            if jugador2_ant == None:
+                jugador2_ant = Circle(
+                    [-1, 0],
+                    size,
+                    linewidth=lw,
+                    edgecolor=edgecolor,
+                    facecolor=facecolor,
+                )
+            jugador2_ant.remove()
+        jugador2 = Circle(
+            [posicion_x, posicion_y],
+            size,
+            linewidth=lw,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(jugador2)
+        ax.annotate(
+            f"{numero}",
+            jugador2.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
+        jugador2_ant = jugador2
+
+    elif numero == 3:
+        if realtime == "Si":
+            if jugador3_ant == None:
+                jugador3_ant = Circle(
+                    [-1, 0],
+                    size,
+                    linewidth=lw,
+                    edgecolor=edgecolor,
+                    facecolor=facecolor,
+                )
+            jugador3_ant.remove()
+        jugador3 = Circle(
+            [posicion_x, posicion_y],
+            size,
+            linewidth=lw,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(jugador3)
+        ax.annotate(
+            f"{numero}",
+            jugador3.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
+        jugador3_ant = jugador3
+
+    elif numero == 4:
+        if realtime == "Si":
+            if jugador4_ant == None:
+                jugador4_ant = Circle(
+                    [-1, 0],
+                    size,
+                    linewidth=lw,
+                    edgecolor=edgecolor,
+                    facecolor=facecolor,
+                )
+            jugador4_ant.remove()
+        jugador4 = Circle(
+            [posicion_x, posicion_y],
+            size,
+            linewidth=lw,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(jugador4)
+        ax.annotate(
+            f"{numero}",
+            jugador4.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
+        jugador4_ant = jugador4
+
+    elif numero == 5:
+        if realtime == "Si":
+            if jugador5_ant == None:
+                jugador5_ant = Circle(
+                    [-1, 0],
+                    size,
+                    linewidth=lw,
+                    edgecolor=edgecolor,
+                    facecolor=facecolor,
+                )
+            jugador5_ant.remove()
+        jugador5 = Circle(
+            [posicion_x, posicion_y],
+            size,
+            linewidth=lw,
+            edgecolor=edgecolor,
+            facecolor=facecolor,
+        )
+        ax.add_patch(jugador5)
+        ax.annotate(
+            f"{numero}",
+            jugador5.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
+        jugador5_ant = jugador5
 
 
 def draw_positions(grid_step=1):

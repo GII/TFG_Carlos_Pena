@@ -18,6 +18,7 @@ from common.tracking_utils_entero_Canasta import (
     draw_court_white,
     draw_anclas,
     draw_players,
+    draw_players_realtime,
 )
 from tools_heatmap import mapacalor, lectura_mp
 
@@ -37,55 +38,63 @@ class Index:
     def __init__(self):
         self.button = None
         self.button_cap = None
+        self.client_mqtt = None
 
     def close(self, event):
-        if self.button_cap:
-            self.client_sus.disconnect()
         plt.close("all")
 
     def maximize(self, event):
         self.button = "MAXIMIZE"
         plt.get_current_fig_manager().full_screen_toggle()
 
+    def on_message(self, client_sus, userdata, message):
+        message_received = str(message.payload.decode("utf-8"))
+        tagid, x, y, tiempo = message_received.split(",")
+        x_int = float(x)
+        y_int = float(y)
+        if tagid == "C684":
+            self.position_x = y_int + 0.25
+            self.position_y = x_int
+            self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
+            self.id = 1
+            print(tiempo)
+        elif tagid == "9092":
+            self.position_x = y_int + 0.25
+            self.position_y = x_int
+            self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
+            self.id = 2
+        elif tagid == "92AB":
+            self.position_x = y_int + 0.25
+            self.position_y = x_int
+            self.positions3_rt.append([y_int + 0.25, x_int, tiempo])
+            self.id = 3
+        elif tagid == "C70B":
+            self.position_x = y_int + 0.25
+            self.position_y = x_int
+            self.positions4_rt.append([y_int + 0.25, x_int, tiempo])
+            self.id = 4
+        elif tagid == "C9B0":
+            self.position_x = y_int + 0.25
+            self.position_y = x_int
+            self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
+            self.id = 5
+
     def capdata(self, event):
         self.button_cap = True
+        self.position_x = None
+        self.position_y = None
         self.positions1_rt = []
         self.positions2_rt = []
         self.positions3_rt = []
         self.positions4_rt = []
         self.positions5_rt = []
 
-        def on_message(client_sus, userdata, message):
-            # print("message received ", str(message.payload.decode("utf-8")))
-            message_received = str(message.payload.decode("utf-8"))
-            tagid, x, y, tiempo = message_received.split(",")
-            x_int = float(x)
-            y_int = float(y)
-            if tagid == "C684":
-                self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
-                id = 1
-                print(tiempo)
-            elif tagid == "9092":
-                self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
-                id = 2
-
-            elif tagid == "92AB":
-                self.positions3_rt.append([y_int + 0.25, x_int, tiempo])
-                id = 3
-            elif tagid == "C70B":
-                self.positions4_rt.append([y_int + 0.25, x_int, tiempo])
-                id = 4
-            elif tagid == "C9B0":
-                self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
-                id = 5
-            return id
-
-        client_sus = mqtt.Client("Suscriptor")
-        client_sus.on_message = on_message
-        client_sus.connect("127.0.0.1")
+        self.client_mqtt = mqtt.Client("Suscriptor")
+        self.client_mqtt.on_message = self.on_message
+        self.client_mqtt.connect("127.0.0.1")
+        self.client_mqtt.loop_start()
         topic = "PosicionJugadores"
-        client_sus.subscribe(topic)
-        client_sus.loop_forever()
+        self.client_mqtt.subscribe(topic)
 
         # TRATAMIENTO DE ESOS DATOS
         self.positions1_rt_dic = {i: v for i, v in enumerate(self.positions1_rt)}
@@ -96,15 +105,17 @@ class Index:
         ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
         draw_court(ax, grid_step=1)
         draw_anclas(ax)
-        draw_players(
-            ax=ax,
-            positions=self.positions2_rt_dic,
-            realtime=None,
-            size=0.1,
-            fontsize=2,
-            color="green",
+        draw_players_realtime(
+            ax=None,
+            posicion_x=self.position_x,
+            posicion_y=self.position_y,
+            numero=self.id,
+            realtime="Si",
+            size=0.3,
+            fontsize=7,
+            edgecolor="white",
+            facecolor="green",
             lw=1,
-            numero=id,
         )
 
         # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
@@ -112,9 +123,8 @@ class Index:
 
     def stopcapdata(self, event):
         self.button = "STOP DATA"
-
-    def continuecapdata(self, event):
-        self.button = "CONTINUE DATA"
+        self.client_mqtt.loop_stop()
+        self.client_mqtt.disconnect()
 
     def open(self, event):
         self.button = "OPEN"
@@ -253,27 +263,23 @@ class Interface:
         bmaximize = Button(axmaximize, "[ ]", color="white")
         bmaximize.on_clicked(callback.maximize)
 
-        axcontinuecapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
-        bcontinuecapdata = Button(axcontinuecapdata, "STOP", color="red", hovercolor="firebrick")
-        bcontinuecapdata.on_clicked(callback.continuecapdata)
-
-        axstopcapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
-        bstopcapdata = Button(axstopcapdata, "STOP", color="red", hovercolor="firebrick")
-        bstopcapdata.on_clicked(callback.stopcapdata)
-
         axcapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
         bcapdata = Button(axcapdata, "CAPTURE DATA", hovercolor="green")
         bcapdata.on_clicked(callback.capdata)
 
-        axopen = self.fig.add_axes([0.9, 0.72, 0.1, 0.08])
+        axstopcapdata = self.fig.add_axes([0.9, 0.74, 0.1, 0.06])
+        bstopcapdata = Button(axstopcapdata, "STOP CAP DATA", hovercolor="firebrick")
+        bstopcapdata.on_clicked(callback.stopcapdata)
+
+        axopen = self.fig.add_axes([0.9, 0.62, 0.1, 0.08])
         bopen = Button(axopen, "OPEN FILE", hovercolor="green")
         bopen.on_clicked(callback.open)
 
-        axtracking = self.fig.add_axes([0.9, 0.64, 0.1, 0.08])
+        axtracking = self.fig.add_axes([0.9, 0.54, 0.1, 0.08])
         btracking = Button(axtracking, "TRACKING", hovercolor="green")
         btracking.on_clicked(callback.tracking)
 
-        axheatmap = self.fig.add_axes([0.9, 0.56, 0.1, 0.08])
+        axheatmap = self.fig.add_axes([0.9, 0.46, 0.1, 0.08])
         bheatmap = Button(axheatmap, "HEAT MAP", hovercolor="green")
         bheatmap.on_clicked(callback.heatmap)
 

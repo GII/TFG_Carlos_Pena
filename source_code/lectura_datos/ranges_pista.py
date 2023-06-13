@@ -135,7 +135,7 @@ class Ranges:
                     # filtrado NaN
                     # if not math.isnan(x_int) and not math.isnan(y_int):
                     # actualización de la figura
-                    with open("prueba2_corriendo_2jugadores_tobillo_delante.txt", "a") as file:
+                    with open("PRUEBA.txt", "a") as file:
                         file.write(f"{tagid},{x},{y},{tiempo}\n")
                     # MQTT (publicación)
                     message = f"{tagid},{x},{y},{tiempo}\n"
