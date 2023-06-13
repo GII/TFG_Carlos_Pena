@@ -8,18 +8,9 @@ from matplotlib.widgets import Button, Slider
 import paho.mqtt.client as mqtt
 from tkinter import messagebox as MessageBox
 from functools import partial
-from lectura_datos import ranges_pista
 
+from common.tracking_utils_entero_Canasta import BasketballCourt
 
-# https://docs.hektorprofe.net/python/interfaces-graficas-con-tkinter/dialogs-dialogos/
-
-from common.tracking_utils_entero_Canasta import (
-    draw_court,
-    draw_court_white,
-    draw_anclas,
-    draw_players,
-    draw_players_realtime,
-)
 from tools_heatmap import mapacalor, lectura_mp
 
 from lectura_txt import lectura
@@ -31,11 +22,21 @@ AVANZAR EN:
 - Barra en función del tiempo --> update cuando no es una variable de la gráfica
 
 -Posible mejora de rapidez en la interfaz
+
+
+ERRORES:
+- Imports
 """
 
 
-class Index:
+class Interface:
     def __init__(self):
+        self.fig, self.ax = plt.subplots()
+        self.ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+        self.fig.subplots_adjust(left=0, bottom=0)
+        BasketballCourt.draw(self.ax, grid_step=1)
+        BasketballCourt.draw_anclas(self.ax)
+        plt.get_current_fig_manager().full_screen_toggle()
         self.button = None
         self.button_cap = None
         self.client_mqtt = None
@@ -79,6 +80,19 @@ class Index:
             self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
             self.id = 5
 
+        BasketballCourt.draw_players_realtime(
+            ax=None,
+            posicion_x=self.position_x,
+            posicion_y=self.position_y,
+            numero=self.id,
+            realtime="Si",
+            size=0.3,
+            fontsize=7,
+            edgecolor="white",
+            facecolor="green",
+            lw=1,
+        )
+
     def capdata(self, event):
         self.button_cap = True
         self.position_x = None
@@ -103,23 +117,8 @@ class Index:
         self.positions4_rt_dic = {i: v for i, v in enumerate(self.positions4_rt)}
         self.positions5_rt_dic = {i: v for i, v in enumerate(self.positions5_rt)}
         ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-        draw_court(ax, grid_step=1)
-        draw_anclas(ax)
-        draw_players_realtime(
-            ax=None,
-            posicion_x=self.position_x,
-            posicion_y=self.position_y,
-            numero=self.id,
-            realtime="Si",
-            size=0.3,
-            fontsize=7,
-            edgecolor="white",
-            facecolor="green",
-            lw=1,
-        )
-
-        # AL PULSAR EN CAP DATA QUE APAREZCA STOP DATA Y A SU VEZ AL PULSAR EN ESTE QUE APAREZCA CONTINUE
-        # ax.set_visible(bstopcapdata)
+        BasketballCourt.draw(ax, grid_step=1)
+        BasketballCourt.draw_anclas(ax)
 
     def stopcapdata(self, event):
         self.button = "STOP DATA"
@@ -141,10 +140,10 @@ class Index:
         if self.button == "OPEN" or self.button == "HEAT MAP":
             self.button = "TRACKING"
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            draw_court(ax, grid_step=1)
-            draw_anclas(ax)
+            BasketballCourt.draw(ax, grid_step=1)
+            BasketballCourt.draw_anclas(ax)
             # Por defecto grafica las posiciones del jugador 1
-            draw_players(
+            BasketballCourt.draw_players(
                 ax=ax,
                 positions=self.positions1,
                 realtime=None,
@@ -180,7 +179,7 @@ class Index:
                 origin="lower",
                 extent=(0, 32, 0, 19),
             )
-            draw_court_white(ax, grid_step=None)
+            BasketballCourt.draw_white(ax, grid_step=None)
             plt.show()
 
         else:
@@ -201,9 +200,9 @@ class Index:
             elif id == 5:
                 positions = self.positions5
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            draw_court(ax, grid_step=1)
-            draw_anclas(ax)
-            draw_players(
+            BasketballCourt.draw(ax, grid_step=1)
+            BasketballCourt.draw_anclas(ax)
+            BasketballCourt.draw_players(
                 ax=ax,
                 positions=positions,
                 realtime=None,
@@ -237,71 +236,60 @@ class Index:
                 origin="lower",
                 extent=(0, 32, 0, 19),
             )
-            draw_court_white(ax, grid_step=None)
+            BasketballCourt.draw_white(ax, grid_step=None)
             plt.show()
         else:
             MessageBox.showinfo("Info", "Select a file previously")
 
-
-class Interface:
-    def __init__(self):
-        self.fig, self.ax = plt.subplots()
-        self.ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-        self.fig.subplots_adjust(left=0, bottom=0)
-        draw_court(self.ax, grid_step=1)
-        draw_anclas(self.ax)
-        plt.get_current_fig_manager().full_screen_toggle()
-
     def run(self):
-        callback = Index()
         # BUTTONS
         axclose = self.fig.add_axes([0.96, 0.96, 0.03, 0.03])
         bclose = Button(axclose, "X", color="white", hovercolor="red")
-        bclose.on_clicked(callback.close)
+        bclose.on_clicked(self.close)
 
         axmaximize = self.fig.add_axes([0.93, 0.96, 0.03, 0.03])
         bmaximize = Button(axmaximize, "[ ]", color="white")
-        bmaximize.on_clicked(callback.maximize)
+        bmaximize.on_clicked(self.maximize)
 
         axcapdata = self.fig.add_axes([0.9, 0.8, 0.1, 0.08])
         bcapdata = Button(axcapdata, "CAPTURE DATA", hovercolor="green")
-        bcapdata.on_clicked(callback.capdata)
+        bcapdata.on_clicked(self.capdata)
 
         axstopcapdata = self.fig.add_axes([0.9, 0.74, 0.1, 0.06])
         bstopcapdata = Button(axstopcapdata, "STOP CAP DATA", hovercolor="firebrick")
-        bstopcapdata.on_clicked(callback.stopcapdata)
+        bstopcapdata.on_clicked(self.stopcapdata)
 
         axopen = self.fig.add_axes([0.9, 0.62, 0.1, 0.08])
         bopen = Button(axopen, "OPEN FILE", hovercolor="green")
-        bopen.on_clicked(callback.open)
+        bopen.on_clicked(self.open)
 
         axtracking = self.fig.add_axes([0.9, 0.54, 0.1, 0.08])
         btracking = Button(axtracking, "TRACKING", hovercolor="green")
-        btracking.on_clicked(callback.tracking)
+        btracking.on_clicked(self.tracking)
 
         axheatmap = self.fig.add_axes([0.9, 0.46, 0.1, 0.08])
         bheatmap = Button(axheatmap, "HEAT MAP", hovercolor="green")
-        bheatmap.on_clicked(callback.heatmap)
+        bheatmap.on_clicked(self.heatmap)
 
         axplayer1 = self.fig.add_axes([0.9, 0.33, 0.1, 0.08])
         bplayer1 = Button(axplayer1, "PLAYER 1", color="white", hovercolor="green")
-        bplayer1.on_clicked(partial(callback.player, 1))
+        bplayer1.on_clicked(partial(self.player, 1))
 
         axplayer2 = self.fig.add_axes([0.9, 0.25, 0.1, 0.08])
         bplayer2 = Button(axplayer2, "PLAYER 2", color="white", hovercolor="green")
-        bplayer2.on_clicked(partial(callback.player, 2))
+        bplayer2.on_clicked(partial(self.player, 2))
 
         axplayer3 = self.fig.add_axes([0.9, 0.17, 0.1, 0.08])
         bplayer3 = Button(axplayer3, "PLAYER 3", color="white", hovercolor="green")
-        bplayer3.on_clicked(partial(callback.player, 3))
+        bplayer3.on_clicked(partial(self.player, 3))
 
         axplayer4 = self.fig.add_axes([0.9, 0.09, 0.1, 0.08])
         bplayer4 = Button(axplayer4, "PLAYER 4", color="white", hovercolor="green")
-        bplayer4.on_clicked(partial(callback.player, 4))
+        bplayer4.on_clicked(partial(self.player, 4))
 
         axplayer5 = self.fig.add_axes([0.9, 0.01, 0.1, 0.08])
         bplayer5 = Button(axplayer5, "PLAYER 5", color="white", hovercolor="green")
-        bplayer5.on_clicked(partial(callback.player, 5))
+        bplayer5.on_clicked(partial(self.player, 5))
 
         # SLIDER https://matplotlib.org/2.0.2/examples/widgets/slider_demo.html  https://matplotlib.org/stable/gallery/widgets/slider_demo.html
         axtime = self.fig.add_axes([0.12, 0.9, 0.5, 0.03])
@@ -320,10 +308,10 @@ class Interface:
         # The function to be called anytime a slider's value change
         def update(val):
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            draw_court(ax, grid_step=1)
-            draw_anclas(ax)
+            BasketballCourt.draw(ax, grid_step=1)
+            BasketballCourt.draw_anclas(ax)
             # Por defecto grafica las posiciones del jugador 1
-            draw_players(
+            BasketballCourt.draw_players(
                 ax=ax,
                 positions=self.positions1,
                 realtime=None,

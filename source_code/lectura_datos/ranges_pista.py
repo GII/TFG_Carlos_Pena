@@ -8,8 +8,6 @@ import numpy as np
 import math
 import paho.mqtt.client as mqtt
 
-from common.tracking_utils_entero_Canasta import draw_court, draw_anclas, draw_players
-
 
 class Ranges:
     def __init__(self):
@@ -62,84 +60,13 @@ class Ranges:
                     y_int = float(y)
                     z_int = float(z)
                     print(f"Tag {tagid}: {x_int}, {y_int+0.25}, {z_int}. Tiempo={tiempo}s")
-                    """if tagid == "9092":
-                        if not math.isnan(x_int) and not math.isnan(
-                            y_int
-                        ):  # comprueba si los valores son distintos de nan
-                            if self.visualizacion_jugadores == 2:
-                                # SE BORRA LA PISTA cuando recibo datos si no lo recorro con el debugger
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=1,
-                                )  # MODIFICAR Y QUITAR + 4.3
-                            elif self.visualizacion_jugadores == 3:
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=1,
-                                    realtime="Si",
-                                )
-                    elif tagid == "XXXX":
-                        if not math.isnan(x_int) and not math.isnan(y_int):
-                            if self.visualizacion_jugadores == 2:
-                                draw_players(
-                                    posicion_x=y_int, posicion_y=-x_int, numero=2
-                                )
-                            elif self.visualizacion_jugadores == 3:
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=2,
-                                    realtime="Si",
-                                )
-                    elif tagid == "XXXX":
-                        if not math.isnan(x_int) and not math.isnan(y_int):
-                            if self.visualizacion_jugadores == 2:
-                                draw_players(
-                                    posicion_x=y_int, posicion_y=-x_int, numero=3
-                                )
-                            elif self.visualizacion_jugadores == 3:
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=3,
-                                    realtime="Si",
-                                )
-                    elif tagid == "XXXX":
-                        if not math.isnan(x_int) and not math.isnan(y_int):
-                            if self.visualizacion_jugadores == 2:
-                                draw_players(
-                                    posicion_x=y_int, posicion_y=-x_int, numero=4
-                                )
-                            elif self.visualizacion_jugadores == 3:
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=4,
-                                    realtime="Si",
-                                )
-                    elif tagid == "XXXX":
-                        if not math.isnan(x_int) and not math.isnan(y_int):
-                            if self.visualizacion_jugadores == 2:
-                                draw_players(
-                                    posicion_x=y_int, posicion_y=-x_int, numero=5
-                                )
-                            elif self.visualizacion_jugadores == 3:
-                                draw_players(
-                                    posicion_x=y_int + 0.75,
-                                    posicion_y=x_int,
-                                    numero=5,
-                                    realtime="Si",
-                                )"""
                     # filtrado NaN
-                    # if not math.isnan(x_int) and not math.isnan(y_int):
-                    # actualización de la figura
-                    with open("PRUEBA.txt", "a") as file:
-                        file.write(f"{tagid},{x},{y},{tiempo}\n")
-                    # MQTT (publicación)
-                    message = f"{tagid},{x},{y},{tiempo}\n"
-                    self.client_pub.publish(self.topic, message)
+                    if not math.isnan(x_int) and not math.isnan(y_int):
+                        with open("PRUEBA.txt", "a") as file:
+                            file.write(f"{tagid},{x},{y},{tiempo}\n")
+                        # MQTT (publicación)
+                        message = f"{tagid},{x},{y},{tiempo}\n"
+                        self.client_pub.publish(self.topic, message)
 
             self.ser.close()
         except SerialException:

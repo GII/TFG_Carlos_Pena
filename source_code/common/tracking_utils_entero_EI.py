@@ -1,7 +1,5 @@
 from matplotlib.patches import Circle, Rectangle, Arc
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
-import matplotlib.cm as cm
 import numpy as np
 
 
@@ -39,6 +37,7 @@ class BasketballCourt:
     def __init__(self):
         pass
 
+    @classmethod
     def draw(cls, ax=None, color="gray", lw=1, grid_step=None):
         """Plot a full basketball court to axis.
         References:
@@ -342,12 +341,6 @@ class BasketballCourt:
             linestyle="dashed",
         )
 
-        """img = Image.new("RGB", (20, 20))
-        im_logo = Image.open("EscudoBSFerrol.JPG")
-        img.paste(im_logo, (100, 100))
-        img.save("image.png")
-        https://facundoq.github.io/courses/aa2018/res/04_imagenes_numpy.html"""
-
         outer_lines_l = Rectangle(
             (cls.anclas_to_baseline, -cls.anclas_to_sideline),
             cls.court_length / 2,
@@ -486,7 +479,7 @@ def draw_court(ax=None, color="gray", lw=1.3, grid_step=1):
         - http://savvastjortjoglou.com/nba-shot-sharts.html
         - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjcoIW4xef3AhUEtqQKHdVwAc8QFnoECAgQAQ&url=https%3A%2F%2Fnz.basketball%2Fwp-content%2Fuploads%2F2020%2F02%2FFIBA-Basketball-Court-Dimensions.pdf&usg=AOvVaw0aO3XSw26jtwJz772thhPx
     """
-    return BasketballCourt().draw(ax=ax, color=color, lw=lw, grid_step=grid_step)
+    return BasketballCourt.draw(ax=ax, color=color, lw=lw, grid_step=grid_step)
 
 
 class Ancla:
@@ -513,39 +506,38 @@ def draw_anclas(
     if ax is None:
         ax = plt.gca()
 
-    court = BasketballCourt()
+    court = BasketballCourt
 
-    # TomaDatos_0505
     if not anclas:
         # +- 0.5 únicamente para la representación gráfica
         ancla_1 = Ancla(
-            court.anclas_to_baseline + 2.3,
-            0 - 0.5,
+            0 + 0.5,
+            (-court.anclas_to_sideline - court.court_width / 2),
             1,
         )
         ancla_2 = Ancla(
-            court.anclas_to_baseline + 2.3,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
+            (court.anclas_to_baseline + court.throw_in_line),
+            0 - 0.5,
             2,
         )
         ancla_3 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            0 - 0.5,
+            (court.anclas_to_baseline + court.throw_in_line),
+            (-2 * court.anclas_to_sideline - court.court_width + 0.5),
             3,
         )
         ancla_4 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
+            (court.anclas_to_baseline + court.court_length - court.throw_in_line),
+            0 - 0.5,
             4,
         )
         ancla_5 = Ancla(
-            court.anclas_to_baseline + court.court_length - 1.1,
-            0 - 0.5,
+            (court.anclas_to_baseline + court.court_length - court.throw_in_line),
+            (-2 * court.anclas_to_sideline - court.court_width + 0.5),
             5,
         )
         ancla_6 = Ancla(
-            court.anclas_to_baseline + court.court_length - 1.1,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
+            (2 * court.anclas_to_baseline + court.court_length - 0.5),
+            (-court.anclas_to_sideline - court.court_width / 2),
             6,
         )
         anclas = {
@@ -556,46 +548,6 @@ def draw_anclas(
             ancla_5.id: ancla_5,
             ancla_6.id: ancla_6,
         }
-    """if not anclas:
-        # +- 0.5 únicamente para la representación gráfica
-        ancla_1 = Ancla(
-            0 + 0.5,
-            0 - 0.5,
-            1,
-        )
-        ancla_2 = Ancla(
-            0 + 0.5,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
-            2,
-        )
-        ancla_3 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            0 - 0.5,
-            3,
-        )
-        ancla_4 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
-            4,
-        )
-        ancla_5 = Ancla(
-            0 + 2 * court.anclas_to_baseline + court.court_length - 0.5,
-            0 - 0.5,
-            5,
-        )
-        ancla_6 = Ancla(
-            2 * court.anclas_to_baseline + court.court_length - 0.5,
-            -(2 * court.anclas_to_sideline + court.court_width - 0.5),
-            6,
-        )
-        anclas = {
-            ancla_1.id: ancla_1,
-            ancla_2.id: ancla_2,
-            ancla_3.id: ancla_3,
-            ancla_4.id: ancla_4,
-            ancla_5.id: ancla_5,
-            ancla_6.id: ancla_6,
-        }"""
 
     ### List of the elements to be plotted onto the axes
     try:
@@ -671,21 +623,13 @@ def draw_positions(grid_step=1, ax=None):
     ax = plt.axes(xlim=(0, 32), ylim=(-19, 0))
     plt.title("PISTA COMPLETA")
     draw_court(ax, grid_step=grid_step)
-
-    """with cbook.get_sample_data("EscudoBSFerrol.JPG") as dfile:
-        escudo = np.frombuffer(dfile.read(), np.uint16).reshape((256, 256))
-    ax.add_subplot(2, 2, 1)
-    ax.imshow(escudo, cmap=cm.gray)"""
-
     draw_anclas(ax)
     draw_players(ax, posicion_x=11, posicion_y=-9.5, numero=7)
 
     return ax
 
 
-# PRUEBAS TFG CARLOS
 if __name__ == "__main__":
+    """Útil para correr el fichero stand alone y comprobar que funciona correctamente la parte de visualización"""
     draw_positions()
     plt.show()
-"""El draw_positions es únicamente para cuando NO le pasamos las posiciones de las anclas?¿Podríamos emplear esto para mostrar las posiciones del tag?"""
-"""Habría que corregir las coordenadas de los puntos o de los ejes. TAMBIÉN VA A DEPENDER DE SI CAMBIAMOS O NO LAS ANCLAS"""

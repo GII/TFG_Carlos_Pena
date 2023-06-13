@@ -2,7 +2,6 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-import numpy as np
 import matplotlib.pyplot as plt
 import math
 from tkinter import filedialog as FileDialog
@@ -12,8 +11,6 @@ from common.tracking_utils_entero_Canasta import (
     draw_anclas,
     draw_players,
 )
-
-# POSIBILIDAD DE SACAR 5 GRÁFICAS, 1 POR JUGADOR ???
 
 
 def lectura():
@@ -36,7 +33,7 @@ def lectura():
                         [
                             y_int + 0.25,
                             x_int,
-                        ]  # Ajustes a los ejes para TomaDatos_0505 y + 4.3 , -x + 0.8
+                        ]
                     )
             elif tagid == "9092":
                 if not math.isnan(x_int) and not math.isnan(y_int):

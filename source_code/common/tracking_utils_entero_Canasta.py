@@ -1,7 +1,16 @@
 from matplotlib.patches import Circle, Rectangle, Arc
 import matplotlib.pyplot as plt
-from PIL import Image
 import numpy as np
+
+
+class Ancla:
+    def __init__(self, x, y, id):
+        self.x = x
+        self.y = y
+        self.id = id
+
+    def get_position(self):
+        return self.x, self.y
 
 
 class BasketballCourt:
@@ -35,10 +44,15 @@ class BasketballCourt:
     zone_no_charge = 1.25
     zone_no_charge_lateral = 0.375
 
-    def __init__(self):
-        pass
+    def __init__(cls):
+        cls.jugador1 = None
+        cls.jugador2 = None
+        cls.jugador3 = None
+        cls.jugador4 = None
+        cls.jugador5 = None
 
-    def draw(cls, ax=None, color="gray", lw=1, grid_step=None):
+    @classmethod
+    def draw(cls, ax=None, color="gray", lw=1.3, grid_step=1):
         """Plot a full basketball court to axis.
         References:
             - http://savvastjortjoglou.com/nba-shot-sharts.html
@@ -317,12 +331,6 @@ class BasketballCourt:
             linestyle="dashed",
         )
 
-        """img = Image.new("RGB", (20, 20))
-        im_logo = Image.open("EscudoBSFerrol.JPG")
-        img.paste(im_logo, (100, 100))
-        img.save("image.png")
-        https://facundoq.github.io/courses/aa2018/res/04_imagenes_numpy.html"""
-
         outer_lines_l = Rectangle(
             (cls.anclas_to_baseline, 0 + cls.court_width / 2),
             cls.court_length / 2,
@@ -426,49 +434,6 @@ class BasketballCourt:
         ]
 
         ### Grid
-        """if grid_step and type(grid_step) in [int, float]:
-            ax.hlines(
-                y=np.arange(
-                    0,
-                    int(cls.court_width / 2 + cls.anclas_to_sideline + 0.5),
-                    grid_step,
-                ),
-                xmin=0,
-                xmax=cls.court_length + 2 * cls.anclas_to_baseline,
-                colors="gray",
-                linewidth=0.5,
-                alpha=0.5,
-            )
-            ax.hlines(
-                y=-np.arange(
-                    0,
-                    int(cls.court_width / 2 + cls.anclas_to_sideline + 0.5),
-                    grid_step,
-                ),
-                xmin=0,
-                xmax=cls.court_length + 2 * cls.anclas_to_baseline,
-                colors="gray",
-                linewidth=0.5,
-                alpha=0.5,
-            )
-
-            ax.vlines(
-                x=np.arange(
-                    0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step
-                ),
-                ymin=-cls.court_width / 2 - cls.anclas_to_baseline,
-                ymax=cls.court_width / 2 + cls.anclas_to_baseline,
-                colors="gray",
-                linewidth=0.5,
-                alpha=0.5,
-            )
-
-        # Add the court elements onto the axes
-        for element in court_elements:
-            ax.add_patch(element)
-
-        return ax"""
-
         if grid_step and type(grid_step) in [int, float]:
             ax.hlines(
                 y=np.arange(
@@ -498,41 +463,8 @@ class BasketballCourt:
 
         return ax
 
-
-class BasketballCourt_White:
-    ### Length is x, width is y
-    ### All units are in meters
-    ### Axis origin is center of court
-    court_length = 28
-    court_width = 15
-    center_radius_outer = 4.8 - 3.60 / 2
-    center_radius_inner = 3.60 / 2
-
-    anclas_to_baseline = 2
-    anclas_to_sideline = 2
-
-    baseline_to_rim = 1.575
-    baseline_to_backboard = 1.2
-    rim_radius = 0.23
-    backboard_width = 1.8
-
-    three_radius = 6.75
-    three_lateral_margin = 0.9
-    three_lateral_length = 3.0
-
-    throw_in_line = 8.325  # this is measured from baseline
-    throw_in_line_length = 0.15
-
-    zone_length = 5.8
-    zone_width = 4.9
-    zone_radius = 1.8
-    zone_no_charge = 1.25
-    zone_no_charge_lateral = 0.375
-
-    def __init__(self):
-        pass
-
-    def draw(cls, ax=None, color="gray", lw=1, grid_step=None):
+    @classmethod
+    def draw_white(cls, ax=None, color="gray", lw=1.3, grid_step=1):
         """Plot a full basketball court to axis.
         References:
             - http://savvastjortjoglou.com/nba-shot-sharts.html
@@ -833,12 +765,6 @@ class BasketballCourt_White:
             linestyle="dashed",
         )
 
-        """img = Image.new("RGB", (20, 20))
-        im_logo = Image.open("EscudoBSFerrol.JPG")
-        img.paste(im_logo, (100, 100))
-        img.save("image.png")
-        https://facundoq.github.io/courses/aa2018/res/04_imagenes_numpy.html"""
-
         outer_lines_l = Rectangle(
             (cls.anclas_to_baseline, cls.anclas_to_sideline + cls.court_width),
             cls.court_length / 2,
@@ -982,310 +908,268 @@ class BasketballCourt_White:
 
         return ax
 
+    @classmethod
+    def draw_anclas(
+        cls,
+        ax=None,
+        anclas=None,
+        margin=1,
+        ancla_size=0.5,
+        fontsize=10,
+        color="red",
+        lw=1,
+        name_root="A",
+    ):
+        # If an axes object isn't provided to plot onto, just get current one
+        if ax is None:
+            ax = plt.gca()
 
-def draw_court(ax=None, color="gray", lw=1.3, grid_step=1):
-    """Plot a full basketball court to axis using BasketballCourt as source class.
+        # 6 anclas
+        if not anclas:
+            # +- 0.5 únicamente para la representación gráfica
+            ancla_1 = Ancla(
+                0 + 0.5,
+                0,
+                1,
+            )
+            ancla_2 = Ancla(
+                (cls.anclas_to_baseline + cls.throw_in_line),
+                (cls.anclas_to_sideline + cls.court_width / 2 - 0.5),
+                2,
+            )
+            ancla_3 = Ancla(
+                (cls.anclas_to_baseline + cls.throw_in_line),
+                -(cls.anclas_to_sideline + cls.court_width / 2 - 0.5),
+                3,
+            )
+            ancla_4 = Ancla(
+                (cls.court_length + cls.anclas_to_baseline - cls.throw_in_line),
+                (cls.anclas_to_sideline + cls.court_width / 2 - 0.5),
+                4,
+            )
+            ancla_5 = Ancla(
+                (cls.court_length + cls.anclas_to_baseline - cls.throw_in_line),
+                -(cls.anclas_to_sideline + cls.court_width / 2 - 0.5),
+                5,
+            )
+            ancla_6 = Ancla(
+                (+2 * cls.anclas_to_baseline + cls.court_length - 0.5),
+                0,
+                6,
+            )
+            anclas = {
+                ancla_1.id: ancla_1,
+                ancla_2.id: ancla_2,
+                ancla_3.id: ancla_3,
+                ancla_4.id: ancla_4,
+                ancla_5.id: ancla_5,
+                ancla_6.id: ancla_6,
+            }
 
-    References:
-        - http://savvastjortjoglou.com/nba-shot-sharts.html
-        - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjcoIW4xef3AhUEtqQKHdVwAc8QFnoECAgQAQ&url=https%3A%2F%2Fnz.basketball%2Fwp-content%2Fuploads%2F2020%2F02%2FFIBA-Basketball-Court-Dimensions.pdf&usg=AOvVaw0aO3XSw26jtwJz772thhPx
-    """
-    return BasketballCourt().draw(ax=ax, color=color, lw=lw, grid_step=grid_step)
+        ### List of the elements to be plotted onto the axes
+        try:
+            elements = [
+                Circle(ancla.get_position(), ancla_size, linewidth=lw, color=color)
+                for ancla in anclas.values()
+            ]
+        except AttributeError:
+            elements = [
+                Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas.values()
+            ]
 
+        ### Add the elements onto the axes
+        for i, element in enumerate(elements):
+            ax.add_patch(element)
+            ax.annotate(
+                f"{name_root}{i+1}",
+                element.get_center(),
+                color="w",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
 
-def draw_court_white(ax=None, color="gray", lw=1.3, grid_step=1):
-    """Plot a full basketball court to axis using BasketballCourt as source class.
+        return ax
 
-    References:
-        - http://savvastjortjoglou.com/nba-shot-sharts.html
-        - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjcoIW4xef3AhUEtqQKHdVwAc8QFnoECAgQAQ&url=https%3A%2F%2Fnz.basketball%2Fwp-content%2Fuploads%2F2020%2F02%2FFIBA-Basketball-Court-Dimensions.pdf&usg=AOvVaw0aO3XSw26jtwJz772thhPx
-    """
-    return BasketballCourt_White().draw(ax=ax, color=color, lw=lw, grid_step=grid_step)
+    @classmethod
+    def draw_players(
+        cls,
+        ax=None,
+        positions=None,
+        realtime=None,
+        size=0.3,
+        fontsize=5,
+        color="green",
+        lw=1,
+        numero=None,
+    ):
+        # If an axes object isn't provided to plot onto, just get current one
+        if ax is None:
+            ax = plt.gca()
 
+        ### List of the elements to be plotted onto the axes
+        try:
+            elements = [
+                Circle(
+                    position.get_position(),
+                    size,
+                    linewidth=lw,
+                    color=color,
+                )
+                for position in positions.values()
+            ]
+        except AttributeError:
+            elements = [
+                Circle(
+                    position,
+                    size,
+                    linewidth=lw,
+                    color=color,
+                )
+                for position in positions.values()
+            ]
 
-class Ancla:
-    def __init__(self, x, y, id):
-        self.x = x
-        self.y = y
-        self.id = id
+        ### Add the elements onto the axes
+        for i, element in enumerate(elements):
+            ax.add_patch(element)
+            ax.annotate(
+                f"{numero}",
+                element.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
+        return ax
 
-    def get_position(self):
-        return self.x, self.y
+    @classmethod
+    def draw_players_realtime(
+        cls,
+        ax=None,
+        posicion_x=None,
+        posicion_y=None,
+        numero=id,
+        realtime=None,
+        size=0.3,
+        fontsize=7,
+        edgecolor="white",
+        facecolor="green",
+        lw=1,
+    ):
+        # If an axes object isn't provided to plot onto, just get current one
+        if ax is None:
+            ax = plt.gca()
 
+        if numero == 1:
+            if realtime == "Si":
+                if cls.jugador1 is not None:
+                    cls.jugador1.remove()
+            cls.jugador1 = Circle(
+                [posicion_x, posicion_y],
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            ax.add_patch(cls.jugador1)
+            ax.annotate(
+                f"{numero}",
+                cls.jugador1.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
 
-def draw_anclas(
-    ax=None,
-    anclas=None,
-    margin=1,
-    ancla_size=0.5,
-    fontsize=10,
-    color="red",
-    lw=1,
-    name_root="A",
-):
-    # If an axes object isn't provided to plot onto, just get current one
-    if ax is None:
-        ax = plt.gca()
+        elif numero == 2:
+            if realtime == "Si":
+                if cls.jugador2 is not None:
+                    cls.jugador2.remove()
+            cls.jugador2 = Circle(
+                [posicion_x, posicion_y],
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            ax.add_patch(cls.jugador2)
+            ax.annotate(
+                f"{numero}",
+                cls.jugador2.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
 
-    court = BasketballCourt()
+        elif numero == 3:
+            if realtime == "Si":
+                if cls.jugador3 is not None:
+                    cls.jugador3.remove()
+            cls.jugador3 = Circle(
+                [posicion_x, posicion_y],
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            ax.add_patch(cls.jugador3)
+            ax.annotate(
+                f"{numero}",
+                cls.jugador3.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
 
-    """# 10 anclas
-    if not anclas:
-        # +- 0.5 únicamente para la representación gráfica
-        ancla_1 = Ancla(
-            0 + 0.5,
-            0,
-            1,
-        )
-        ancla_2 = Ancla(
-            0 + court.anclas_to_baseline,
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            2,
-        )
-        ancla_3 = Ancla(
-            0 + court.anclas_to_baseline,
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            3,
-        )
-        ancla_4 = Ancla(
-            (court.anclas_to_baseline + court.throw_in_line),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            4,
-        )
-        ancla_5 = Ancla(
-            (court.anclas_to_baseline + court.throw_in_line),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            5,
-        )
-        ancla_6 = Ancla(
-            (court.court_length + court.anclas_to_baseline - court.throw_in_line),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            6,
-        )
-        ancla_7 = Ancla(
-            (court.court_length + court.anclas_to_baseline - court.throw_in_line),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            7,
-        )
-        ancla_8 = Ancla(
-            (
-                court.court_length
-                + 2 * court.anclas_to_baseline
-                - court.anclas_to_baseline
-            ),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            8,
-        )
-        ancla_9 = Ancla(
-            (
-                court.court_length
-                + 2 * court.anclas_to_baseline
-                - court.anclas_to_baseline
-            ),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            9,
-        )
-        ancla_10 = Ancla(
-            (+2 * court.anclas_to_baseline + court.court_length - 0.5),
-            0,
-            10,
-        )
-        anclas = {
-            ancla_1.id: ancla_1,
-            ancla_2.id: ancla_2,
-            ancla_3.id: ancla_3,
-            ancla_4.id: ancla_4,
-            ancla_5.id: ancla_5,
-            ancla_6.id: ancla_6,
-            ancla_7.id: ancla_7,
-            ancla_8.id: ancla_8,
-            ancla_9.id: ancla_9,
-            ancla_10.id: ancla_10,
-        }"""
-
-    """# 8 anclas
-    if not anclas:
-        # +- 0.5 únicamente para la representación gráfica
-        ancla_1 = Ancla(
-            0 + 0.5,
-            0,
-            1,
-        )
-        ancla_2 = Ancla(
-            0 + court.anclas_to_baseline,
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            2,
-        )
-        ancla_3 = Ancla(
-            0 + court.anclas_to_baseline,
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            3,
-        )
-        ancla_4 = Ancla(
-            (court.anclas_to_baseline + court.court_length / 2),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            4,
-        )
-        ancla_5 = Ancla(
-            (court.anclas_to_baseline + court.court_length / 2),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            5,
-        )
-        ancla_6 = Ancla(
-            (
-                court.court_length
-                + 2 * court.anclas_to_baseline
-                - court.anclas_to_baseline
-            ),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            6,
-        )
-        ancla_7 = Ancla(
-            (
-                court.court_length
-                + 2 * court.anclas_to_baseline
-                - court.anclas_to_baseline
-            ),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            7,
-        )
-        ancla_8 = Ancla(
-            (+2 * court.anclas_to_baseline + court.court_length - 0.5),
-            0,
-            8,
-        )
-        anclas = {
-            ancla_1.id: ancla_1,
-            ancla_2.id: ancla_2,
-            ancla_3.id: ancla_3,
-            ancla_4.id: ancla_4,
-            ancla_5.id: ancla_5,
-            ancla_6.id: ancla_6,
-            ancla_7.id: ancla_7,
-            ancla_8.id: ancla_8,
-        }"""
-
-    # 6 anclas
-    if not anclas:
-        # +- 0.5 únicamente para la representación gráfica
-        ancla_1 = Ancla(
-            0 + 0.5,
-            0,
-            1,
-        )
-        ancla_2 = Ancla(
-            (court.anclas_to_baseline + court.throw_in_line),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            2,
-        )
-        ancla_3 = Ancla(
-            (court.anclas_to_baseline + court.throw_in_line),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            3,
-        )
-        ancla_4 = Ancla(
-            (court.court_length + court.anclas_to_baseline - court.throw_in_line),
-            (court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            4,
-        )
-        ancla_5 = Ancla(
-            (court.court_length + court.anclas_to_baseline - court.throw_in_line),
-            -(court.anclas_to_sideline + court.court_width / 2 - 0.5),
-            5,
-        )
-        ancla_6 = Ancla(
-            (+2 * court.anclas_to_baseline + court.court_length - 0.5),
-            0,
-            6,
-        )
-        anclas = {
-            ancla_1.id: ancla_1,
-            ancla_2.id: ancla_2,
-            ancla_3.id: ancla_3,
-            ancla_4.id: ancla_4,
-            ancla_5.id: ancla_5,
-            ancla_6.id: ancla_6,
-        }
-
-    """# 8 anclas (TomaDatos_2905)
-    if not anclas:
-        # +- 0.5 únicamente para la representación gráfica
-        ancla_1 = Ancla(
-            0 + 0.5,
-            0,
-            1,
-        )
-        ancla_2 = Ancla(
-            court.anclas_to_baseline + 2.3,
-            (court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            2,
-        )
-        ancla_3 = Ancla(
-            court.anclas_to_baseline + 2.3,
-            -(court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            3,
-        )
-        ancla_4 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            (court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            4,
-        )
-        ancla_5 = Ancla(
-            court.anclas_to_baseline + court.court_length / 2,
-            -(court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            5,
-        )
-        ancla_6 = Ancla(
-            court.anclas_to_baseline + court.court_length - 1.1,
-            (court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            6,
-        )
-        ancla_7 = Ancla(
-            court.anclas_to_baseline + court.court_length - 1.1,
-            -(court.court_width / 2 + court.anclas_to_baseline - 0.5),
-            7,
-        )
-        ancla_8 = Ancla(
-            (+2 * court.anclas_to_baseline + court.court_length - 0.5),
-            0,
-            8,
-        )
-        anclas = {
-            ancla_1.id: ancla_1,
-            ancla_2.id: ancla_2,
-            ancla_3.id: ancla_3,
-            ancla_4.id: ancla_4,
-            ancla_5.id: ancla_5,
-            ancla_6.id: ancla_6,
-            ancla_7.id: ancla_7,
-            ancla_8.id: ancla_8,
-        }"""
-
-    ### List of the elements to be plotted onto the axes
-    try:
-        elements = [
-            Circle(ancla.get_position(), ancla_size, linewidth=lw, color=color)
-            for ancla in anclas.values()
-        ]
-    except AttributeError:
-        elements = [
-            Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas.values()
-        ]
-
-    ### Add the elements onto the axes
-    for i, element in enumerate(elements):
-        ax.add_patch(element)
-        ax.annotate(
-            f"{name_root}{i+1}",
-            element.get_center(),
-            color="w",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-
-    return ax
+        elif numero == 4:
+            if realtime == "Si":
+                if cls.jugador4 is not None:
+                    cls.jugador4.remove()
+            cls.jugador4 = Circle(
+                [posicion_x, posicion_y],
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            ax.add_patch(cls.jugador4)
+            ax.annotate(
+                f"{numero}",
+                cls.jugador4.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
+        elif numero == 5:
+            if realtime == "Si":
+                if cls.jugador5 is not None:
+                    cls.jugador5.remove()
+            cls.jugador5 = Circle(
+                [posicion_x, posicion_y],
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            ax.add_patch(cls.jugador5)
+            ax.annotate(
+                f"{numero}",
+                cls.jugador5.get_center(),
+                color="white",
+                weight="bold",
+                fontsize=fontsize,
+                ha="center",
+                va="center",
+            )
 
 
 def draw_players_grafica(
@@ -1342,228 +1226,13 @@ def draw_players_grafica(
     return ax
 
 
-def draw_players(
-    ax=None,
-    positions=None,
-    realtime=None,
-    size=0.3,
-    fontsize=5,
-    color="green",
-    lw=1,
-    numero=None,
-):
-    # If an axes object isn't provided to plot onto, just get current one
+def draw_positions(grid_step=1, ax=None):
+    scale = 0.5
     if ax is None:
-        ax = plt.gca()
-
-    ### List of the elements to be plotted onto the axes
-    try:
-        elements = [
-            Circle(
-                position.get_position(),
-                size,
-                linewidth=lw,
-                color=color,
-            )
-            for position in positions.values()
-        ]
-    except AttributeError:
-        elements = [
-            Circle(
-                position,
-                size,
-                linewidth=lw,
-                color=color,
-            )
-            for position in positions.values()
-        ]
-
-    ### Add the elements onto the axes
-    for i, element in enumerate(elements):
-        ax.add_patch(element)
-        ax.annotate(
-            f"{numero}",
-            element.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-    return ax
-
-
-def draw_players_realtime(
-    ax=None,
-    posicion_x=None,
-    posicion_y=None,
-    numero=id,
-    realtime=None,
-    size=0.3,
-    fontsize=7,
-    edgecolor="white",
-    facecolor="green",
-    lw=1,
-):
-    # If an axes object isn't provided to plot onto, just get current one
-    if ax is None:
-        ax = plt.gca()
-
-    if numero == 1:
-        if realtime == "Si":
-            if jugador1_ant == None:
-                jugador1_ant = Circle(
-                    [-1, 0],
-                    size,
-                    linewidth=lw,
-                    edgecolor=edgecolor,
-                    facecolor=facecolor,
-                )
-            jugador1_ant.remove()
-        jugador1 = Circle(
-            [posicion_x, posicion_y],
-            size,
-            linewidth=lw,
-            edgecolor=edgecolor,
-            facecolor=facecolor,
-        )
-        ax.add_patch(jugador1)
-        ax.annotate(
-            f"{numero}",
-            jugador1.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-        jugador1_ant = jugador1
-
-    elif numero == 2:
-        if realtime == "Si":
-            if jugador2_ant == None:
-                jugador2_ant = Circle(
-                    [-1, 0],
-                    size,
-                    linewidth=lw,
-                    edgecolor=edgecolor,
-                    facecolor=facecolor,
-                )
-            jugador2_ant.remove()
-        jugador2 = Circle(
-            [posicion_x, posicion_y],
-            size,
-            linewidth=lw,
-            edgecolor=edgecolor,
-            facecolor=facecolor,
-        )
-        ax.add_patch(jugador2)
-        ax.annotate(
-            f"{numero}",
-            jugador2.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-        jugador2_ant = jugador2
-
-    elif numero == 3:
-        if realtime == "Si":
-            if jugador3_ant == None:
-                jugador3_ant = Circle(
-                    [-1, 0],
-                    size,
-                    linewidth=lw,
-                    edgecolor=edgecolor,
-                    facecolor=facecolor,
-                )
-            jugador3_ant.remove()
-        jugador3 = Circle(
-            [posicion_x, posicion_y],
-            size,
-            linewidth=lw,
-            edgecolor=edgecolor,
-            facecolor=facecolor,
-        )
-        ax.add_patch(jugador3)
-        ax.annotate(
-            f"{numero}",
-            jugador3.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-        jugador3_ant = jugador3
-
-    elif numero == 4:
-        if realtime == "Si":
-            if jugador4_ant == None:
-                jugador4_ant = Circle(
-                    [-1, 0],
-                    size,
-                    linewidth=lw,
-                    edgecolor=edgecolor,
-                    facecolor=facecolor,
-                )
-            jugador4_ant.remove()
-        jugador4 = Circle(
-            [posicion_x, posicion_y],
-            size,
-            linewidth=lw,
-            edgecolor=edgecolor,
-            facecolor=facecolor,
-        )
-        ax.add_patch(jugador4)
-        ax.annotate(
-            f"{numero}",
-            jugador4.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-        jugador4_ant = jugador4
-
-    elif numero == 5:
-        if realtime == "Si":
-            if jugador5_ant == None:
-                jugador5_ant = Circle(
-                    [-1, 0],
-                    size,
-                    linewidth=lw,
-                    edgecolor=edgecolor,
-                    facecolor=facecolor,
-                )
-            jugador5_ant.remove()
-        jugador5 = Circle(
-            [posicion_x, posicion_y],
-            size,
-            linewidth=lw,
-            edgecolor=edgecolor,
-            facecolor=facecolor,
-        )
-        ax.add_patch(jugador5)
-        ax.annotate(
-            f"{numero}",
-            jugador5.get_center(),
-            color="white",
-            weight="bold",
-            fontsize=fontsize,
-            ha="center",
-            va="center",
-        )
-        jugador5_ant = jugador5
-
-
-def draw_positions(grid_step=1):
+        ax = plt.figure(figsize=(28 * scale, 15 * scale))
     ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
     plt.title("PISTA COMPLETA")
-    draw_court(ax, grid_step=grid_step)
+    BasketballCourt.draw(ax, grid_step=grid_step)
     positions = [[8.5, 6], [9, 5]]
     positions_dic = {i: v for i, v in enumerate(positions)}
     draw_players_grafica(
@@ -1575,14 +1244,10 @@ def draw_positions(grid_step=1):
         lw=1,
         numero=1,
     )
-    draw_anclas(ax)
-
-    return ax
-
-
-# PRUEBAS TFG CARLOS
-if __name__ == "__main__":
-    draw_positions()
+    BasketballCourt.draw_anclas(ax)
     plt.show()
-"""El draw_positions es únicamente para cuando NO le pasamos las posiciones de las anclas?¿Podríamos emplear esto para mostrar las posiciones del tag?"""
-"""Habría que corregir las coordenadas de los puntos o de los ejes. TAMBIÉN VA A DEPENDER DE SI CAMBIAMOS O NO LAS ANCLAS"""
+
+
+if __name__ == "__main__":
+    """Útil para correr el fichero stand alone y comprobar que funciona correctamente la parte de visualización"""
+    draw_positions()
