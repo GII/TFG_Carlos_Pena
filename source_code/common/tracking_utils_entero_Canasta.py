@@ -484,9 +484,7 @@ class BasketballCourt:
             )
 
             ax.vlines(
-                x=np.arange(
-                    0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step
-                ),
+                x=np.arange(0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step),
                 ymin=-cls.court_width / 2 - cls.anclas_to_baseline,
                 ymax=cls.court_width / 2 + cls.anclas_to_baseline,
                 colors="gray",
@@ -592,11 +590,7 @@ class BasketballCourt_White:
         backboard_l = Rectangle(
             (
                 cls.anclas_to_baseline + cls.baseline_to_backboard,
-                (
-                    cls.anclas_to_sideline
-                    + cls.court_width / 2
-                    - cls.backboard_width / 2
-                ),
+                (cls.anclas_to_sideline + cls.court_width / 2 - cls.backboard_width / 2),
             ),
             0,
             cls.backboard_width,
@@ -606,11 +600,7 @@ class BasketballCourt_White:
         backboard_r = Rectangle(
             (
                 cls.anclas_to_baseline + cls.court_length - cls.baseline_to_backboard,
-                (
-                    cls.anclas_to_sideline
-                    + cls.court_width / 2
-                    - cls.backboard_width / 2
-                ),
+                (cls.anclas_to_sideline + cls.court_width / 2 - cls.backboard_width / 2),
             ),
             0,
             cls.backboard_width,
@@ -978,9 +968,7 @@ class BasketballCourt_White:
             )
 
             ax.vlines(
-                x=np.arange(
-                    0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step
-                ),
+                x=np.arange(0, int(2 * cls.anclas_to_baseline + cls.court_length), grid_step),
                 ymin=-cls.court_width / 2 - cls.anclas_to_baseline,
                 ymax=cls.court_width / 2 + cls.anclas_to_baseline,
                 colors="gray",
@@ -1281,8 +1269,7 @@ def draw_anclas(
         ]
     except AttributeError:
         elements = [
-            Circle(ancla, ancla_size, linewidth=lw, color=color)
-            for ancla in anclas.values()
+            Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas.values()
         ]
 
     ### Add the elements onto the axes
@@ -1298,6 +1285,60 @@ def draw_anclas(
             va="center",
         )
 
+    return ax
+
+
+def draw_players_grafica(
+    ax=None,
+    positions=None,
+    realtime=None,
+    size=0.3,
+    fontsize=5,
+    edgecolor="white",
+    facecolor="green",
+    lw=1,
+    numero=None,
+):
+    # If an axes object isn't provided to plot onto, just get current one
+    if ax is None:
+        ax = plt.gca()
+
+    ### List of the elements to be plotted onto the axes
+    try:
+        elements = [
+            Circle(
+                position.get_position(),
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            for position in positions.values()
+        ]
+    except AttributeError:
+        elements = [
+            Circle(
+                position,
+                size,
+                linewidth=lw,
+                edgecolor=edgecolor,
+                facecolor=facecolor,
+            )
+            for position in positions.values()
+        ]
+
+    ### Add the elements onto the axes
+    for i, element in enumerate(elements):
+        ax.add_patch(element)
+        ax.annotate(
+            f"{i+1}",
+            element.get_center(),
+            color="white",
+            weight="bold",
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+        )
     return ax
 
 
@@ -1343,7 +1384,7 @@ def draw_players(
         ax.annotate(
             f"{numero}",
             element.get_center(),
-            color="w",
+            color="white",
             weight="bold",
             fontsize=fontsize,
             ha="center",
@@ -1394,6 +1435,17 @@ def draw_positions(grid_step=1):
     ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
     plt.title("PISTA COMPLETA")
     draw_court(ax, grid_step=grid_step)
+    positions = [[8.5, 6], [9, 5]]
+    positions_dic = {i: v for i, v in enumerate(positions)}
+    draw_players_grafica(
+        ax=None,
+        positions=positions_dic,
+        realtime=None,
+        size=0.3,
+        fontsize=7,
+        lw=1,
+        numero=1,
+    )
     draw_anclas(ax)
 
     return ax
