@@ -34,8 +34,9 @@ class Interface:
         self.fig, self.ax = plt.subplots()
         self.ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
         self.fig.subplots_adjust(left=0, bottom=0)
-        BasketballCourt.draw(self.ax, grid_step=1)
-        BasketballCourt.draw_anclas(self.ax)
+        self.pista = BasketballCourt()
+        self.pista.draw(self.ax, grid_step=1)
+        self.pista.draw_anclas(self.ax)
         plt.get_current_fig_manager().full_screen_toggle()
         self.button = None
         self.button_cap = None
@@ -58,7 +59,6 @@ class Interface:
             self.position_y = x_int
             self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
             self.id = 1
-            print(tiempo)
         elif tagid == "9092":
             self.position_x = y_int + 0.25
             self.position_y = x_int
@@ -80,12 +80,12 @@ class Interface:
             self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
             self.id = 5
 
-        BasketballCourt.draw_players_realtime(
+        self.pista.draw_players_realtime(
             ax=None,
             posicion_x=self.position_x,
             posicion_y=self.position_y,
             numero=self.id,
-            realtime="Si",
+            realtime=True,
             size=0.3,
             fontsize=7,
             edgecolor="white",
@@ -111,14 +111,9 @@ class Interface:
         self.client_mqtt.subscribe(topic)
 
         # TRATAMIENTO DE ESOS DATOS
-        self.positions1_rt_dic = {i: v for i, v in enumerate(self.positions1_rt)}
-        self.positions2_rt_dic = {i: v for i, v in enumerate(self.positions2_rt)}
-        self.positions3_rt_dic = {i: v for i, v in enumerate(self.positions3_rt)}
-        self.positions4_rt_dic = {i: v for i, v in enumerate(self.positions4_rt)}
-        self.positions5_rt_dic = {i: v for i, v in enumerate(self.positions5_rt)}
         ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-        BasketballCourt.draw(ax, grid_step=1)
-        BasketballCourt.draw_anclas(ax)
+        self.pista.draw(ax, grid_step=1)
+        self.pista.draw_anclas(ax)
 
     def stopcapdata(self, event):
         self.button = "STOP DATA"
@@ -140,10 +135,10 @@ class Interface:
         if self.button == "OPEN" or self.button == "HEAT MAP":
             self.button = "TRACKING"
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            BasketballCourt.draw(ax, grid_step=1)
-            BasketballCourt.draw_anclas(ax)
+            self.pista.draw(ax, grid_step=1)
+            self.pista.draw_anclas(ax)
             # Por defecto grafica las posiciones del jugador 1
-            BasketballCourt.draw_players(
+            self.pista.draw_players(
                 ax=ax,
                 positions=self.positions1,
                 realtime=None,
@@ -179,7 +174,7 @@ class Interface:
                 origin="lower",
                 extent=(0, 32, 0, 19),
             )
-            BasketballCourt.draw_white(ax, grid_step=None)
+            self.pista.draw_white(ax, grid_step=None)
             plt.show()
 
         else:
@@ -200,9 +195,9 @@ class Interface:
             elif id == 5:
                 positions = self.positions5
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            BasketballCourt.draw(ax, grid_step=1)
-            BasketballCourt.draw_anclas(ax)
-            BasketballCourt.draw_players(
+            self.pista.draw(ax, grid_step=1)
+            self.pista.draw_anclas(ax)
+            self.pista.draw_players(
                 ax=ax,
                 positions=positions,
                 realtime=None,
@@ -236,7 +231,7 @@ class Interface:
                 origin="lower",
                 extent=(0, 32, 0, 19),
             )
-            BasketballCourt.draw_white(ax, grid_step=None)
+            self.pista.draw_white(ax, grid_step=None)
             plt.show()
         else:
             MessageBox.showinfo("Info", "Select a file previously")
@@ -307,20 +302,21 @@ class Interface:
 
         # The function to be called anytime a slider's value change
         def update(val):
+            print(val)
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            BasketballCourt.draw(ax, grid_step=1)
-            BasketballCourt.draw_anclas(ax)
+            self.pista.draw(ax, grid_step=1)
+            self.pista.draw_anclas(ax)
             # Por defecto grafica las posiciones del jugador 1
-            BasketballCourt.draw_players(
-                ax=ax,
-                positions=self.positions1,
-                realtime=None,
-                size=0.1,
-                fontsize=2,
-                color="green",
-                lw=1,
-                numero=1,
-            )
+            # self.pista.draw_players(
+            #     ax=ax,
+            #     positions=self.positions1,
+            #     realtime=None,
+            #     size=0.1,
+            #     fontsize=2,
+            #     color="green",
+            #     lw=1,
+            #     numero=1,
+            # )
             self.fig.canvas.draw_idle()
 
         time_slider.on_changed(update)

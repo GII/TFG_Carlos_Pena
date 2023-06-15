@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import math
 from tkinter import filedialog as FileDialog
 
-from common.tracking_utils_entero_Canasta import (
+from tracking_utils_Entero_Canasta_1406 import (
     draw_court,
     draw_anclas,
     draw_players,
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     grafico()
     draw_players(
         ax=None,
-        positions=positions2,
+        positions=positions4,
         realtime=None,
         size=0.1,
         fontsize=0,
