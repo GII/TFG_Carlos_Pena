@@ -1126,7 +1126,7 @@ def draw_players_grafica(
     for i, element in enumerate(elements):
         ax.add_patch(element)
         ax.annotate(
-            f"{i+1}",
+            f"{numero}",
             element.get_center(),
             color="white",
             weight="bold",
@@ -1144,16 +1144,16 @@ def draw_positions(grid_step=1, ax=None):
     ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
     plt.title("PISTA COMPLETA")
     BasketballCourt.draw(ax, grid_step=grid_step)
-    positions = [[8.5, 6], [9, 5]]
+    positions = [[3, 7]]
     positions_dic = {i: v for i, v in enumerate(positions)}
     draw_players_grafica(
         ax=None,
         positions=positions_dic,
         realtime=None,
         size=0.3,
-        fontsize=7,
+        fontsize=10,
         lw=1,
-        numero=1,
+        numero=5,
     )
     BasketballCourt.draw_anclas(ax)
     plt.show()

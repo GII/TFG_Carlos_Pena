@@ -236,6 +236,125 @@ class Interface:
         else:
             MessageBox.showinfo("Info", "Select a file previously")
 
+    # The function to be called anytime a slider's value change
+    def update(self, val):
+        if self.button == "STOP DATA":
+            interval_slider = 600
+            ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+            self.pista.draw(ax, grid_step=1)
+            self.pista.draw_anclas(ax)
+            # PLAYER 1
+            num_positions_player1 = len(self.positions1_rt)
+            position_list_player1 = (num_positions_player1 * val) / interval_slider
+            x1 = self.positions1_rt[position_list_player1 + 1][0]
+            y1 = self.positions1_rt[position_list_player1 + 1][1]
+            self.pista.draw_players_realtime(
+                ax=None,
+                posicion_x=x1,
+                posicion_y=y1,
+                numero=1,
+                realtime=True,
+                size=0.3,
+                fontsize=7,
+                edgecolor="white",
+                facecolor="green",
+                lw=1,
+            )
+
+            # PLAYER 2
+            num_positions_player2 = len(self.positions2_rt)
+            position_list_player2 = (num_positions_player2 * val) / interval_slider
+            x2 = self.positions1_rt[position_list_player2 + 1][0]
+            y2 = self.positions1_rt[position_list_player2 + 1][1]
+            self.pista.draw_players_realtime(
+                ax=None,
+                posicion_x=x2,
+                posicion_y=y2,
+                numero=2,
+                realtime=True,
+                size=0.3,
+                fontsize=7,
+                edgecolor="white",
+                facecolor="green",
+                lw=1,
+            )
+
+            # PLAYER 3
+            num_positions_player3 = len(self.positions3_rt)
+            position_list_player3 = (num_positions_player3 * val) / interval_slider
+            x3 = self.positions1_rt[position_list_player3 + 1][0]
+            y3 = self.positions1_rt[position_list_player3 + 1][1]
+            self.pista.draw_players_realtime(
+                ax=None,
+                posicion_x=x3,
+                posicion_y=y3,
+                numero=3,
+                realtime=True,
+                size=0.3,
+                fontsize=7,
+                edgecolor="white",
+                facecolor="green",
+                lw=1,
+            )
+
+            # PLAYER 4
+            num_positions_player4 = len(self.positions4_rt)
+            position_list_player4 = (num_positions_player4 * val) / interval_slider
+            x4 = self.positions1_rt[position_list_player4 + 1][0]
+            y4 = self.positions1_rt[position_list_player4 + 1][1]
+            self.pista.draw_players_realtime(
+                ax=None,
+                posicion_x=x4,
+                posicion_y=y4,
+                numero=4,
+                realtime=True,
+                size=0.3,
+                fontsize=7,
+                edgecolor="white",
+                facecolor="green",
+                lw=1,
+            )
+
+            # PLAYER 5
+            num_positions_player5 = len(self.positions5_rt)
+            position_list_player5 = (num_positions_player5 * val) / interval_slider
+            x5 = self.positions1_rt[position_list_player5 + 1][0]
+            y5 = self.positions1_rt[position_list_player5 + 1][1]
+            self.pista.draw_players_realtime(
+                ax=None,
+                posicion_x=x5,
+                posicion_y=y5,
+                numero=5,
+                realtime=True,
+                size=0.3,
+                fontsize=7,
+                edgecolor="white",
+                facecolor="green",
+                lw=1,
+            )
+
+        else:
+            MessageBox.showinfo("Info", "Select STOP CAP DATA previously")
+
+        ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
+        self.pista.draw(ax, grid_step=1)
+        self.pista.draw_anclas(ax)
+        # Por defecto grafica las posiciones del jugador 1
+        # self.pista.draw_players(
+        #     ax=ax,
+        #     positions=self.positions1,
+        #     realtime=None,
+        #     size=0.1,
+        #     fontsize=2,
+        #     color="green",
+        #     lw=1,
+        #     numero=1,
+        # )
+        self.fig.canvas.draw_idle()
+
+    def reset(self, event):
+        self.time_slider.reset()
+
     def run(self):
         # BUTTONS
         axclose = self.fig.add_axes([0.96, 0.96, 0.03, 0.03])
@@ -288,7 +407,7 @@ class Interface:
 
         # SLIDER https://matplotlib.org/2.0.2/examples/widgets/slider_demo.html  https://matplotlib.org/stable/gallery/widgets/slider_demo.html
         axtime = self.fig.add_axes([0.12, 0.9, 0.5, 0.03])
-        time_slider = Slider(
+        self.time_slider = Slider(
             ax=axtime,
             label="Time [s]",
             valmin=-60,
@@ -300,34 +419,12 @@ class Interface:
             handle_style={"facecolor": "black", "edgecolor": "white"},
         )
 
-        # The function to be called anytime a slider's value change
-        def update(val):
-            print(val)
-            ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-            self.pista.draw(ax, grid_step=1)
-            self.pista.draw_anclas(ax)
-            # Por defecto grafica las posiciones del jugador 1
-            # self.pista.draw_players(
-            #     ax=ax,
-            #     positions=self.positions1,
-            #     realtime=None,
-            #     size=0.1,
-            #     fontsize=2,
-            #     color="green",
-            #     lw=1,
-            #     numero=1,
-            # )
-            self.fig.canvas.draw_idle()
-
-        time_slider.on_changed(update)
+        self.time_slider.on_changed(self.update)
 
         resetax = self.fig.add_axes([0.014, 0.895, 0.04, 0.04])
         button = Button(resetax, "RESET", hovercolor="0.975")
+        button.on_clicked(self.reset)
 
-        def reset(event):
-            time_slider.reset()
-
-        button.on_clicked(reset)
         plt.show()
 
 
