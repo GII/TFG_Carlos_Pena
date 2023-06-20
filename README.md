@@ -3,12 +3,12 @@ Manual de usuario para la comprensión de las diferentes opciones proporcionadas
 
 Con el objetivo principal de exponer los resultados de forma clara y comprensible para cualquier usuario, se desarrolla una interfaz que se ejecuta con el programa **ranges_pista_con_read_txt_interfaz_grafica.py** y que presenta las opciones detalladas a continuación.
 
+![image](https://github.com/GII/TFG_Carlos_Pena/assets/119660695/d0d59579-81f8-4146-a5ec-51257da96187)
+
 ## Captura, almacenamiento y visualización de datos en tiempo real
 La opción “CAPTURE DATA” permite no sólo leer y guardar los datos de las distintas posiciones ocupadas por el jugador/es en cada instante en tiempo real en un archivo de texto, sino que también permite la visualización simultánea de cada una de esas posiciones en pista.
 
 Este procedimiento se realiza mediante dos programas independientes y que se han de ejecutar en dos terminales diferentes. El programa **ranges_pista.py** captura, almacena y publica en un topic de MQTT los datos, a la vez que guarda estos mismos datos del posicionamiento en un archivo de texto para poder disponer de ellos desde la opción “OPEN FILE”. Mientras que el programa que ejecuta la interfaz, **ranges_pista_con_read_txt_interfaz_grafica.py**, se suscribe al topic correspondiente y se encarga de la lectura y tratamiento de los datos para posteriormente graficarlos a pista completa. Dado que esta opción del programa sólo graficará la última posición obtenida de cada jugador, esta visualización en tiempo real mostrará las distintas posiciones de los cinco jugadores a la vez en cancha, y no las posiciones de cada jugador por separado en distintos gráficos.
-
-![image](https://github.com/GII/TFG_Carlos_Pena/assets/119660695/5e3c46b4-0b55-4cd0-a602-8a282b1bce92)
 
 ## Visualización de datos a través de un archivo.txt
 A través de la opción “OPEN FILE”, el programa permite visualizar la trayectoria realizada por el jugador en el tiempo con la opción “TRACKING”, a partir de la lectura de un archivo de texto previamente seleccionado. La interfaz no sólo permite visualizar la posición de un jugador, sino que el usuario podrá elegir qué trayectoria de los 5 jugadores en pista desea analizar, mediante los botones de “PLAYER 1”, “PLAYER 2”, “PLAYER 3”,  “PLAYER 4” y “PLAYER 5” situados en la parte inferior derecha de la interfaz gráfica.
@@ -24,7 +24,7 @@ La barra interactiva o slider permite, tanto en la opción de tracking como en l
 
 Para aplicar esta funcionalidad se ha de seleccionar la opción de lectura y graficado de las posiciones en tiempo real “CAPTURE DATA”, y cuando se desee parar la recogida de datos y manejar manualmente las posiciones previamente obtenidas, se ha de presionar el botón “STOP CAP DATA”. También es posible disponer de la barra interactiva en el seguimiento de las posiciones de los jugadores a través de los datos obtenidos de un archivo.txt, presionando la opción de “TRACKING”. Tras haber seleccionado cualquiera de las dos opciones, estará disponible la funcionalidad interactiva del slider recogiendo y graficando los datos de posición de los cincos jugadores en pista en función del valor de la barra escogido por el usuario/entrenador.
 
-![image](https://github.com/GII/TFG_Carlos_Pena/assets/119660695/b94488a0-c947-41d4-b604-01412376ac6b)
+![image](https://github.com/GII/TFG_Carlos_Pena/assets/119660695/9aec6f3c-ca27-49bc-8322-86fde229fc31)
 
 ## Librerías utilizadas
 Con la finalidad de facilitar la descarga de los programas necesarios para correr, en Visual Studio Code, el archivo.py que ejecuta la interfaz gráfica, se detallan las librerías que se han de instalar:
