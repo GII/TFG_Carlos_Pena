@@ -2,7 +2,6 @@ import sys, os
 
 sys.path.append(os.getcwd())
 
-import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, Slider
 import paho.mqtt.client as mqtt
@@ -11,22 +10,9 @@ from functools import partial
 
 from common.tracking_utils_entero_Canasta import BasketballCourt
 
-from tools_heatmap import mapacalor, lectura_mp
+from tools_heatmap import mapacalor
 
 from lectura_txt import lectura
-
-"""
-AVANZAR EN:
-- REAL TIME, se están publicando y estamos leyendo esos datos pero peta el programa
-
-- Barra en función del tiempo --> update cuando no es una variable de la gráfica
-
--Posible mejora de rapidez en la interfaz
-
-
-ERRORES:
-- Imports
-"""
 
 
 class Interface:
@@ -57,27 +43,27 @@ class Interface:
         if tagid == "C684":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions1_rt.append([y_int + 0.25, x_int, tiempo])
+            self.positions[0].append([y_int + 0.25, x_int, tiempo])
             self.id = 1
         elif tagid == "9092":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions2_rt.append([y_int + 0.25, x_int, tiempo])
+            self.positions[1].append([y_int + 0.25, x_int, tiempo])
             self.id = 2
         elif tagid == "92AB":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions3_rt.append([y_int + 0.25, x_int, tiempo])
+            self.positions[2].append([y_int + 0.25, x_int, tiempo])
             self.id = 3
         elif tagid == "C70B":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions4_rt.append([y_int + 0.25, x_int, tiempo])
+            self.positions[3].append([y_int + 0.25, x_int, tiempo])
             self.id = 4
         elif tagid == "C9B0":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions5_rt.append([y_int + 0.25, x_int, tiempo])
+            self.positions[4].append([y_int + 0.25, x_int, tiempo])
             self.id = 5
 
         self.pista.draw_players_realtime(
@@ -97,11 +83,7 @@ class Interface:
         self.button_cap = True
         self.position_x = None
         self.position_y = None
-        self.positions1_rt = []
-        self.positions2_rt = []
-        self.positions3_rt = []
-        self.positions4_rt = []
-        self.positions5_rt = []
+        self.positions = [[], [], [], [], []]
 
         self.client_mqtt = mqtt.Client("Suscriptor")
         self.client_mqtt.on_message = self.on_message
@@ -122,14 +104,7 @@ class Interface:
 
     def open(self, event):
         self.button = "OPEN"
-        (
-            self.archivotxt,
-            self.positions1,
-            self.positions2,
-            self.positions3,
-            self.positions4,
-            self.positions5,
-        ) = lectura()
+        self.archivotxt, self.positions = lectura()
 
     def tracking(self, event):
         if self.button == "OPEN" or self.button == "HEAT MAP":
@@ -140,7 +115,7 @@ class Interface:
             # Por defecto grafica las posiciones del jugador 1
             self.pista.draw_players(
                 ax=ax,
-                positions=self.positions1,
+                positions=self.positions[0],
                 realtime=None,
                 size=0.1,
                 fontsize=2,
@@ -154,15 +129,8 @@ class Interface:
     def heatmap(self, event):
         if self.button == "OPEN" or self.button == "TRACKING":
             self.button = "HEAT MAP"
-            (
-                self.positions1_mp,
-                self.positions2_mp,
-                self.positions3_mp,
-                self.positions4_mp,
-                self.positions5_mp,
-            ) = lectura_mp(self.archivotxt)
             # Por defecto muestra el mapa de calor del jugador 1
-            data = mapacalor(self.positions1_mp)
+            data = mapacalor(self.positions[0])
             ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
             ax.imshow(
                 data,
@@ -184,22 +152,12 @@ class Interface:
         if self.button == "OPEN":
             MessageBox.showinfo("Info", "Select a visualization option:\n- Tracking\n- Heat Map")
         elif self.button == "TRACKING":
-            if id == 1:
-                positions = self.positions1
-            elif id == 2:
-                positions = self.positions2
-            elif id == 3:
-                positions = self.positions3
-            elif id == 4:
-                positions = self.positions4
-            elif id == 5:
-                positions = self.positions5
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
             self.pista.draw(ax, grid_step=1)
             self.pista.draw_anclas(ax)
             self.pista.draw_players(
                 ax=ax,
-                positions=positions,
+                positions=self.positions[id - 1],
                 realtime=None,
                 size=0.1,
                 fontsize=2,
@@ -209,17 +167,7 @@ class Interface:
             )
             plt.draw()
         elif self.button == "HEAT MAP":
-            if id == 1:
-                positions_mp = self.positions1_mp
-            elif id == 2:
-                positions_mp = self.positions2_mp
-            elif id == 3:
-                positions_mp = self.positions3_mp
-            elif id == 4:
-                positions_mp = self.positions4_mp
-            elif id == 5:
-                positions_mp = self.positions5_mp
-            data = mapacalor(positions_mp)
+            data = mapacalor(self.positions[id - 1])
             ax = plt.axes(xlim=(0, 32), ylim=(0, 19))
             ax.imshow(
                 data,
@@ -238,118 +186,30 @@ class Interface:
 
     # The function to be called anytime a slider's value change
     def update(self, val):
-        if self.button == "STOP DATA":
-            interval_slider = 600
+        if self.button == "STOP DATA" or self.button == "TRACKING":
+            interval_slider = 100
             ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
             self.pista.draw(ax, grid_step=1)
             self.pista.draw_anclas(ax)
-            # PLAYER 1
-            num_positions_player1 = len(self.positions1_rt)
-            position_list_player1 = (num_positions_player1 * val) / interval_slider
-            x1 = self.positions1_rt[position_list_player1 + 1][0]
-            y1 = self.positions1_rt[position_list_player1 + 1][1]
-            self.pista.draw_players_realtime(
-                ax=None,
-                posicion_x=x1,
-                posicion_y=y1,
-                numero=1,
-                realtime=True,
-                size=0.3,
-                fontsize=7,
-                edgecolor="white",
-                facecolor="green",
-                lw=1,
-            )
-
-            # PLAYER 2
-            num_positions_player2 = len(self.positions2_rt)
-            position_list_player2 = (num_positions_player2 * val) / interval_slider
-            x2 = self.positions1_rt[position_list_player2 + 1][0]
-            y2 = self.positions1_rt[position_list_player2 + 1][1]
-            self.pista.draw_players_realtime(
-                ax=None,
-                posicion_x=x2,
-                posicion_y=y2,
-                numero=2,
-                realtime=True,
-                size=0.3,
-                fontsize=7,
-                edgecolor="white",
-                facecolor="green",
-                lw=1,
-            )
-
-            # PLAYER 3
-            num_positions_player3 = len(self.positions3_rt)
-            position_list_player3 = (num_positions_player3 * val) / interval_slider
-            x3 = self.positions1_rt[position_list_player3 + 1][0]
-            y3 = self.positions1_rt[position_list_player3 + 1][1]
-            self.pista.draw_players_realtime(
-                ax=None,
-                posicion_x=x3,
-                posicion_y=y3,
-                numero=3,
-                realtime=True,
-                size=0.3,
-                fontsize=7,
-                edgecolor="white",
-                facecolor="green",
-                lw=1,
-            )
-
-            # PLAYER 4
-            num_positions_player4 = len(self.positions4_rt)
-            position_list_player4 = (num_positions_player4 * val) / interval_slider
-            x4 = self.positions1_rt[position_list_player4 + 1][0]
-            y4 = self.positions1_rt[position_list_player4 + 1][1]
-            self.pista.draw_players_realtime(
-                ax=None,
-                posicion_x=x4,
-                posicion_y=y4,
-                numero=4,
-                realtime=True,
-                size=0.3,
-                fontsize=7,
-                edgecolor="white",
-                facecolor="green",
-                lw=1,
-            )
-
-            # PLAYER 5
-            num_positions_player5 = len(self.positions5_rt)
-            position_list_player5 = (num_positions_player5 * val) / interval_slider
-            x5 = self.positions1_rt[position_list_player5 + 1][0]
-            y5 = self.positions1_rt[position_list_player5 + 1][1]
-            self.pista.draw_players_realtime(
-                ax=None,
-                posicion_x=x5,
-                posicion_y=y5,
-                numero=5,
-                realtime=True,
-                size=0.3,
-                fontsize=7,
-                edgecolor="white",
-                facecolor="green",
-                lw=1,
-            )
+            for id, player in enumerate(self.positions):
+                num_positions_player = len(player)
+                position_list_player = num_positions_player * (val + 100) // interval_slider
+                self.pista.draw_players_realtime(
+                    ax=None,
+                    posicion_x=player[position_list_player][0],
+                    posicion_y=player[position_list_player][1],
+                    numero=id + 1,
+                    realtime=True,
+                    size=0.3,
+                    fontsize=7,
+                    edgecolor="white",
+                    facecolor="green",
+                    lw=1,
+                )
 
         else:
-            MessageBox.showinfo("Info", "Select STOP CAP DATA previously")
+            MessageBox.showinfo("Info", "Select STOP CAP DATA or TRACKING previously")
 
-        ax = plt.axes(xlim=(0, 32), ylim=(-9.5, 9.5))
-        self.pista.draw(ax, grid_step=1)
-        self.pista.draw_anclas(ax)
-        # Por defecto grafica las posiciones del jugador 1
-        # self.pista.draw_players(
-        #     ax=ax,
-        #     positions=self.positions1,
-        #     realtime=None,
-        #     size=0.1,
-        #     fontsize=2,
-        #     color="green",
-        #     lw=1,
-        #     numero=1,
-        # )
         self.fig.canvas.draw_idle()
 
     def reset(self, event):
@@ -405,15 +265,15 @@ class Interface:
         bplayer5 = Button(axplayer5, "PLAYER 5", color="white", hovercolor="green")
         bplayer5.on_clicked(partial(self.player, 5))
 
-        # SLIDER https://matplotlib.org/2.0.2/examples/widgets/slider_demo.html  https://matplotlib.org/stable/gallery/widgets/slider_demo.html
+        # SLIDER
         axtime = self.fig.add_axes([0.12, 0.9, 0.5, 0.03])
         self.time_slider = Slider(
             ax=axtime,
-            label="Time [s]",
-            valmin=-60,
+            label="Time",
+            valmin=-100,
             valmax=0,
             valinit=0,
-            valstep=0.1,
+            valstep=1,
             initcolor="green",
             track_color="lightgrey",
             handle_style={"facecolor": "black", "edgecolor": "white"},

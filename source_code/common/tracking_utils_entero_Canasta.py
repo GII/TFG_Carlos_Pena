@@ -954,25 +954,16 @@ class BasketballCourt:
                 0,
                 6,
             )
-            anclas = {
-                ancla_1.id: ancla_1,
-                ancla_2.id: ancla_2,
-                ancla_3.id: ancla_3,
-                ancla_4.id: ancla_4,
-                ancla_5.id: ancla_5,
-                ancla_6.id: ancla_6,
-            }
+            anclas = [ancla_1, ancla_2, ancla_3, ancla_4, ancla_5, ancla_6]
 
         ### List of the elements to be plotted onto the axes
         try:
             elements = [
                 Circle(ancla.get_position(), ancla_size, linewidth=lw, color=color)
-                for ancla in anclas.values()
+                for ancla in anclas
             ]
         except AttributeError:
-            elements = [
-                Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas.values()
-            ]
+            elements = [Circle(ancla, ancla_size, linewidth=lw, color=color) for ancla in anclas]
 
         ### Add the elements onto the axes
         for i, element in enumerate(elements):
@@ -1014,7 +1005,7 @@ class BasketballCourt:
                     linewidth=lw,
                     color=color,
                 )
-                for position in positions.values()
+                for position in positions
             ]
         except AttributeError:
             elements = [
@@ -1024,11 +1015,11 @@ class BasketballCourt:
                     linewidth=lw,
                     color=color,
                 )
-                for position in positions.values()
+                for position in positions
             ]
 
         ### Add the elements onto the axes
-        for i, element in enumerate(elements):
+        for element in elements:
             ax.add_patch(element)
             ax.annotate(
                 f"{numero}",
@@ -1108,7 +1099,7 @@ def draw_players_grafica(
                 edgecolor=edgecolor,
                 facecolor=facecolor,
             )
-            for position in positions.values()
+            for position in positions
         ]
     except AttributeError:
         elements = [
@@ -1119,11 +1110,11 @@ def draw_players_grafica(
                 edgecolor=edgecolor,
                 facecolor=facecolor,
             )
-            for position in positions.values()
+            for position in positions
         ]
 
     ### Add the elements onto the axes
-    for i, element in enumerate(elements):
+    for element in elements:
         ax.add_patch(element)
         ax.annotate(
             f"{numero}",
@@ -1145,10 +1136,9 @@ def draw_positions(grid_step=1, ax=None):
     plt.title("PISTA COMPLETA")
     BasketballCourt.draw(ax, grid_step=grid_step)
     positions = [[3, 7]]
-    positions_dic = {i: v for i, v in enumerate(positions)}
     draw_players_grafica(
         ax=None,
-        positions=positions_dic,
+        positions=positions,
         realtime=None,
         size=0.3,
         fontsize=10,
