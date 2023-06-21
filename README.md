@@ -1,3 +1,8 @@
+# Introducción al proyecto
+El objetivo de este proyecto es el desarrollo de un prototipo de sistema de seguimiento en tiempo real de bajo coste mediante tecnología ultra-wideband (UWB) para ayudar a los entrenadores de baloncesto de formación en el análisis del juego durante los entrenamientos y/o partidos.
+
+El sistema a desarrollar estará compuesto por elementos hardware (emisor y baliza) que deberán ser posicionados en la cancha y en los jugadores, de forma que se puedan obtener datos en tiempo real de su posición. Además, el sistema requiere de un desarrollo software para la gestión y almacenamiento de dichos datos en tiempo real. Finalmente, los datos recibidos serán tratados mediante técnicas de procesado de datos para su análisis y posterior creación de representaciones útiles para los entrenadores a través de una interfaz gráfica eficaz.
+
 # Manual de usuario de la interfaz gráfica
 Manual de usuario para la comprensión de las diferentes opciones proporcionadas en la interfaz gráfica y la correcta instalación de los paquetes necesarios para la utilización del código.
 
