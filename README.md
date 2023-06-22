@@ -1,13 +1,13 @@
 # Prototipo de sistema de seguimiento en tiempo real de bajo coste mediante tecnología UWB para equipos de baloncesto base
 El objetivo de este proyecto es el desarrollo de un prototipo de sistema de seguimiento en tiempo real de bajo coste mediante tecnología ultra-wideband (UWB) para ayudar a los entrenadores de baloncesto de formación en el análisis del juego durante los entrenamientos y/o partidos.
 
-El sistema a desarrollar estará compuesto por elementos hardware (emisor y baliza) que deberán ser posicionados en la cancha y en los jugadores, de forma que se puedan obtener datos en tiempo real de su posición. Además, el sistema requiere de un desarrollo software para la gestión y almacenamiento de dichos datos en tiempo real. Finalmente, los datos recibidos serán tratados mediante técnicas de procesado de datos para su análisis y posterior creación de representaciones útiles para los entrenadores a través de una interfaz gráfica eficaz.
+El sistema a desarrollar estará compuesto por elementos hardware (emisor y baliza) que deberán ser posicionados en la cancha y en los jugadores, de forma que se puedan obtener datos en tiempo real de su posición. Además, el sistema requiere de un desarrollo software para la gestión y almacenamiento de dichos datos en tiempo real. Finalmente, los datos recibidos serán tratados mediante técnicas de procesado de datos para su análisis y posterior creación de representaciones útiles para los entrenadores a través de una interfaz gráfica.
 
-En este proyecto se ha utilizado el kit de desarrollo MDEK1001 comercializado por Qorvo, que cuenta con 12 placas de desarrollo DWM1001-DEV que pueden utilizarse como tag o como ancla. La lectura de datos se hace a partir de un tag configurado en modo UWB pasivo y conectado por puerto serie (USB) al ordenador portátil en donde se visualizará la interfaz gráfica.
+En este proyecto se ha utilizado el kit de desarrollo MDEK1001 comercializado por Qorvo, que cuenta con 12 placas de desarrollo DWM1001-DEV que pueden utilizarse como tag o como ancla. La lectura de datos se hace a partir de un tag configurado en modo UWB pasivo y conectado por puerto serie (USB) al ordenador portátil en donde se visualizará la interfaz gráfica. Este tag en modo pasivo se encarga de recopilar todos los datos de los tags colocados en los jugadores conectándose a ellos por BLE.
 
 El código empleado para la realización del proyecto está escrito en lenguaje Python.
 
-Se utiliza MQTT para la comunicación entre los programas que realizan la captura y el tratamiento de los datos.
+Se utiliza MQTT para la comunicación entre los programas que realizan la captura y el tratamiento de los datos con la finalidad de desacoplar ambas funcionalidades y poder ampliar en el futuro el sistema con componentes adicionales.
 
 ## Manual de usuario de la interfaz gráfica
 Manual de usuario para la comprensión de las diferentes opciones proporcionadas en la interfaz gráfica y la correcta instalación de los paquetes necesarios para la utilización del código.
