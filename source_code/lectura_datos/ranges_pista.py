@@ -53,14 +53,13 @@ class Ranges:
                 raw_data = self.ser.readline()
                 data = raw_data.decode(encoding="ascii", errors="ignore")
                 if "POS" in data:
-                    print(data)
                     _, _, tagid, x, y, z, fiab, _ = data.split(",")
                     tiempo = time.time() - tiempo0
                     # CONDICIÓN PARA QUE NO TRABAJE CON LOS NAN
                     x_int = float(x)  # con el data.split() tenemos strings
                     y_int = float(y)
                     z_int = float(z)
-                    # print(f"Tag {tagid}: {x_int}, {y_int+0.25}, {z_int}. Tiempo={tiempo}s")
+                    print(f"Tag {tagid}: {x_int}, {y_int+0.25}, {z_int}. Tiempo={tiempo}s")
                     # filtrado NaN
                     if not math.isnan(x_int) and not math.isnan(y_int):
                         with open("PRUEBA.txt", "a") as file:
