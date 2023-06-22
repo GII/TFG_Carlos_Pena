@@ -14,6 +14,8 @@ from tools_heatmap import mapacalor
 
 from lectura_txt import lectura
 
+# PREGUNTAR por SLIDER con STOP CAP DATA y por qué archivos.txt meter en la carpeta DATA
+
 
 class Interface:
     def __init__(self):
@@ -43,27 +45,27 @@ class Interface:
         if tagid == "C684":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions[0].append([y_int + 0.25, x_int, tiempo])
+            self.positions[0].append([y_int + 0.25, x_int])
             self.id = 1
         elif tagid == "9092":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions[1].append([y_int + 0.25, x_int, tiempo])
+            self.positions[1].append([y_int + 0.25, x_int])
             self.id = 2
         elif tagid == "92AB":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions[2].append([y_int + 0.25, x_int, tiempo])
+            self.positions[2].append([y_int + 0.25, x_int])
             self.id = 3
         elif tagid == "C70B":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions[3].append([y_int + 0.25, x_int, tiempo])
+            self.positions[3].append([y_int + 0.25, x_int])
             self.id = 4
         elif tagid == "C9B0":
             self.position_x = y_int + 0.25
             self.position_y = x_int
-            self.positions[4].append([y_int + 0.25, x_int, tiempo])
+            self.positions[4].append([y_int + 0.25, x_int])
             self.id = 5
 
         self.pista.draw_players_realtime(
@@ -193,19 +195,20 @@ class Interface:
             self.pista.draw_anclas(ax)
             for id, player in enumerate(self.positions):
                 num_positions_player = len(player)
-                position_list_player = num_positions_player * (val + 100) // interval_slider
-                self.pista.draw_players_realtime(
-                    ax=None,
-                    posicion_x=player[position_list_player][0],
-                    posicion_y=player[position_list_player][1],
-                    numero=id + 1,
-                    realtime=True,
-                    size=0.3,
-                    fontsize=7,
-                    edgecolor="white",
-                    facecolor="green",
-                    lw=1,
-                )
+                if num_positions_player != 0:
+                    position_list_player = num_positions_player * (val + 100) // interval_slider
+                    self.pista.draw_players_realtime(
+                        ax=None,
+                        posicion_x=player[position_list_player][0],
+                        posicion_y=player[position_list_player][1],
+                        numero=id + 1,
+                        realtime=True,
+                        size=0.3,
+                        fontsize=7,
+                        edgecolor="white",
+                        facecolor="green",
+                        lw=1,
+                    )
 
         else:
             MessageBox.showinfo("Info", "Select STOP CAP DATA or TRACKING previously")
